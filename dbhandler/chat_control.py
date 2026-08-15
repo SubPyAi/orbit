@@ -5,7 +5,7 @@ class ChatControl:
 
     def add_message(orb_id, user_id, message):
         msg_id = str(uuid.uuid4())
-        query = "insert into OrbitMessages (msg_id, orb_id, id, message) values (%s, %s, %s, %s)"
+        query = "insert into OrbitMessages (msg_id, orb_id, id, data) values (%s, %s, %s, %s)"
         params = (msg_id, orb_id, user_id, message)
         result = sql_handler.put_query(query, params)
         if result is None:
@@ -14,7 +14,7 @@ class ChatControl:
             return 0
 
     def update_message(msg_id, message):
-        query = "update OrbitMessages set message = %s and edited = edited + 1 where msg_id = %s"
+        query = "update OrbitMessages set data = %s and edited = edited + 1 where msg_id = %s"
         params = (message, msg_id)
         result = sql_handler.put_query(query, params)
         if result is None:

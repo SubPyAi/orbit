@@ -31,22 +31,21 @@ CREATE TABLE Orbits (
     orb_id CHAR(128) PRIMARY KEY,
     user_a CHAR(128),
     user_b CHAR(128),
-    user_a_msgs INT,
-    user_b_msgs INT,
-    SNRNCOUNT INT,
-    lastavg FLOAT,
-    G FLOAT,
-    M FLOAT,
-    I INT,
-    user_a_last_response TIMESTAMP,
-    user_b_last_response TIMESTAMP
+    user_a_msgs INT DEFAULT 0,
+    user_b_msgs INT DEFAULT 0,
+    last_var_assignment TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    G FLOAT DEFAULT 0,
+    M FLOAT DEFAULT 0,
+    I INT DEFAULT 0,
+    user_a_last_response TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_b_last_response TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE SolarMembers (
     sl_id CHAR(128),
     role VARCHAR(64),
     id CHAR(128),
-    joined TIMESTAMP
+    joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE OrbitMessages (
@@ -54,7 +53,8 @@ CREATE TABLE OrbitMessages (
     orb_id CHAR(128),
     id CHAR(128),
     data TEXT,
-    at TIMESTAMP
+    at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    edited INT DEFAULT 0
 );
 
 CREATE TABLE SolarMessages (
@@ -62,7 +62,7 @@ CREATE TABLE SolarMessages (
     sl_id CHAR(128),
     id CHAR(128),
     data TEXT,
-    at TIMESTAMP,
+    at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited INT DEFAULT 0
 );
 
