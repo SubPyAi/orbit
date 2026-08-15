@@ -16,13 +16,13 @@ class SessionControl:
             return 0
 
     def validate_session(sess_id):
-        query = "select * from sessions where sessid = %s"
+        query = "select void from sessions where sessid = %s"
         params = (sess_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 67
         else:
-            if len(result) > 0:
+            if len(result) > 0 and result[0][0] == 0:
                 return True
             else:
                 return False

@@ -1,7 +1,7 @@
 import uuid
 from dbhandler import sql_handler
 
-class RoomControl:
+class SolarMsgControl:
 
     def add_message(sl_id, user_id, message):
         msg_id = str(uuid.uuid4())
@@ -14,7 +14,7 @@ class RoomControl:
             return 0
 
     def update_message(msg_id, message):
-        query = "update SolarMessages set data = %s and edited = edited + 1 where msg_id = %s"
+        query = "update SolarMessages set data = %s, edited = edited + 1 where msg_id = %s"
         params = (message, msg_id)
         result = sql_handler.put_query(query, params)
         if result is None:

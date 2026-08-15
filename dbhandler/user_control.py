@@ -6,7 +6,7 @@ class UserControl:
 
     def create_user(username, password, email, phone, dob):
         uid = str(uuid.uuid4())
-        if len(sql_handler.put_query(f"select * from users where username = '{username}';")) > 0:
+        if len(sql_handler.put_query("select * from users where username = %s;", (username,))) > 0:
             return 1
         query = "insert into users (id, username, password, email, phone, DoB, created) values (%s, %s, %s, %s, %s, %s, %s)"
         params = (uid, username, password, email, phone, dob, time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -20,10 +20,13 @@ class UserControl:
         query = "select * from users where id = %s"
         params = (uid,)
         result = sql_handler.put_query(query, params)
-        if result is None:
-            return 67
+        if result != []:
+            if result is None:
+                return 67
+            else:
+                return result
         else:
-            return result
+            return 1
 
     def delete_user(uid):
         query = "delete from users where id = %s"

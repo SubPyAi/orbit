@@ -14,7 +14,7 @@ class ChatControl:
             return 0
 
     def update_message(msg_id, message):
-        query = "update OrbitMessages set data = %s and edited = edited + 1 where msg_id = %s"
+        query = "update OrbitMessages set data = %s, edited = edited + 1 where msg_id = %s"
         params = (message, msg_id)
         result = sql_handler.put_query(query, params)
         if result is None:

@@ -15,9 +15,11 @@ CREATE TABLE Users (
 
 CREATE TABLE Solars (
     sl_id CHAR(128) PRIMARY KEY,
-    configuration VARCHAR(255),
-    created TIMESTAMP,
-    SNRNCOUNT INT
+    id CHAR(128),
+    name varchar(64),
+    configuration JSON,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    msgdata JSON
 );
 
 CREATE TABLE Sessions (
@@ -64,11 +66,4 @@ CREATE TABLE SolarMessages (
     data TEXT,
     at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited INT DEFAULT 0
-);
-
-CREATE TABLE QueryQueue (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    operation TEXT NOT NULL,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('pending', 'processing', 'done') DEFAULT 'pending'
 );

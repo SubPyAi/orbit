@@ -80,7 +80,12 @@ def put_query(query, params=None):
 
     query_queue.put((query, params, result_queue))
 
-    result = result_queue.get(timeout=30)
+    try:
+        result = result_queue.get(timeout=30)
+
+    except queue.Empty:
+        print("[SQLHANDLER] Query timed out.")
+        return None
 
     print(f"[SQLHANDLER] Result: {result}")
 
