@@ -1,0 +1,3 @@
+dotenv
+uuid
+mysql-connector-python
