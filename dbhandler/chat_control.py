@@ -23,7 +23,7 @@ class ChatControl:
             return 0
 
     def get_messages(orb_id, offset=0, limit=100):
-        query = "select * from OrbitMessages where orb_id = %s order by at desc limit %s offset %s"
+        query = "select * from OrbitMessages where orb_id = %s order by at limit %s offset %s"
         params = (orb_id, limit, offset)
         result = sql_handler.put_query(query, params)
         if result is None:

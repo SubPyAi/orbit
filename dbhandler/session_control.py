@@ -36,9 +36,9 @@ class SessionControl:
         else:
             return 0
 
-    def get_session(sess_id):
-        query = "select * from sessions where sessid = %s"
-        params = (sess_id,)
+    def get_session(id):
+        query = "select * from sessions where id = %s"
+        params = (id,)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 67

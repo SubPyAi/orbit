@@ -49,7 +49,7 @@ class UserControl:
             params.append(username)
         if password:
             query += "password = %s, "
-            params.append(password)
+            params.append(argonHasher.hash(password))
         if email:
             query += "email = %s, "
             params.append(email)
@@ -99,7 +99,7 @@ class UserControl:
 
     def disconnect_user(id):
         query = "update users set online = 0 where id = %s"
-        params = (id)
+        params = (id,)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 1

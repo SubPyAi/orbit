@@ -3,21 +3,23 @@ import datetime
 import json
 import itertools
 from dbhandler import sql_handler
+from dbhandler.user_control import UserControl
 
 class SolarControl:
 
     def create_solar(user_id, name, conf):
         sl_id = str(uuid.uuid4())
         cfg = json.loads(conf)
-        msgdata = {"member_data": {}, "last_var_assignment": "", "member_data": {}}
+        msgdata = {"member_data": {}, "last_var_assignment": "", "member_variables": {}}
         for i in cfg['members']:
-            msgdata["member_data"][i] = 0
+            msgdata["member_variables"][i] = 0
         msgdata["last_var_assignment"] = datetime.date.today().strftime("%d-%m-%Y")
-        pairs = itertools.combination(cfg['members'], 2)
+        pairs = itertools.combinations(cfg['members'], 2)
         for i in pairs:
             msgdata['member_data'][i[0] + ":" + i[1]] = 0
         query = "insert into Solars (sl_id, name, id, configuration, msgdata) values (%s, %s, %s, %s, %s)"
         params = (sl_id, name, user_id, conf, json.dumps(msgdata))
+        print(query % params)
         request = sql_handler.put_query(query, params)
         if request == None:
             return 67
@@ -40,8 +42,20 @@ class SolarControl:
         else:
             return request
 
-    def update_solar(sl_id, name, configuration):
-        request = sql_handler.put_query("update Solars set name = %s, configuration = %s where sl_id = %s", (name, configuration, sl_id))
+    def update_solar(sl_id, name=None, configuration=None):
+        query = 'update Solars set '
+        params = []
+        if name:
+            query += 'name = %s, '
+            params.append(name)
+        if configuration:
+            query += 'configuration = %s '
+            params.append(configuration)
+
+        query = query.rstrip(', ')
+        query += " where sl_id = %s"
+        params.append(sl_id)
+        request = sql_handler.put_query(query, params)
         if request == None:
             return 67
         else:
@@ -54,44 +68,48 @@ class SolarControl:
         else:
             return 0
 
-    def add_member(sl_id, id):
-        request1 = sql_handler.put_query("select configuration from Solars where sl_id is %s", (sl_id,))
+    def add_member(sl_id, id, uname):
+        request1 = sql_handler.put_query("select configuration, msgdata from Solars where sl_id = %s", (sl_id,))
         if request1 is None:
             return 67
 
-        config = json.loads(request1[0][3])
+        config = json.loads(request1[0][0])
 
         if id in config['ban_list']:
             return 1
 
+        if id in config['members']:
+            return 2
+        
         mem_list = config['members']
-        config['members']['id'] = 0
-
-        msgdata = json.loads(request1[0][5])
-        msgdata['member_data'][id] = 0
         for i in mem_list:
-            msgdata['member_variables'][i + ':' + id] = 0
+            msgdata['member_data'][id + ":" + i] = 0
+
+        config['members'][id] = uname
+
+        msgdata = json.loads(request1[0][1])
+        for i in mem_list:
+            msgdata['member_variables'][id] = 0
         
 
-        request = sql_handler.put_query("update Solars set configuration = %s, msgdata = %s where sl_id = %s", (config, msgdata, sl_id))
+        request = sql_handler.put_query("update Solars set configuration = %s, msgdata = %s where sl_id = %s", (json.dumps(config), json.dumps(msgdata), sl_id))
 
         return 0
 
     def remove_member(sl_id, id):
-        request1 = sql_handler.put_query("select configuration from Solars where sl_id is %s", (sl_id,))
+        request1 = sql_handler.put_query("select configuration, msgdata from Solars where sl_id = %s", (sl_id,))
         if request1 is None:
             return 67
 
-        config = json.loads(request1[0][3])
+        config = json.loads(request1[0][0])
 
         if id not in config['members']:
             return 1
 
-        config['members'].remove(id)
-        msgdata = json.loads(request1[0][5])
+        del config['members'][id]
+        msgdata = json.loads(request1[0][1])
 
-        if id in msgdata['member_data']:
-            del msgdata['member_data'][id]
+        del msgdata['member_variables'][id]
 
         for key in list(msgdata['member_data'].keys()):
             if id in key:
@@ -138,4 +156,5 @@ class SolarControl:
             return 67
         else:
             return 0
+    
 
