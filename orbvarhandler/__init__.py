@@ -1,1 +1,2 @@
-from orbvarhandler.var_calculator import VarCalculator
+from orbvarhandler.var_calculator import OrbitVarCalculator as OrbitVarCalculator
+from orbvarhandler.var_calculator import SolarVarCalculator as SolarVarCalculator

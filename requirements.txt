@@ -1,3 +1,5 @@
 dotenv
 uuid
 mysql-connector-python
+keyboard
+argon2-cffi

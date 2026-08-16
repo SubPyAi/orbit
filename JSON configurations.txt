@@ -1,0 +1,63 @@
+This text document lists all json configuration formats to be used in mysql db for orbit
+
+Solars
+ - configuration:
+   {
+    "max_members": <int>,
+    "allow_edit": <bool>,
+    "allow_delte": <bool>,
+    "allow_media": <bool>,
+    "read_status_visibility": <bool>,
+    "online_status_visibility": <bool>,
+    "background_ref": <uuid_ref_to_file>,
+    "pfp_ref": <uuid_ref_to_file>,
+    "roles": {
+        "<role>": "<permissions>"
+    },
+    "members": {
+        "<uid>": "<uname> #can be modified by specific role holders and self"
+    },
+    "ban_list": [<uid>]
+   }
+
+ - msgdata:
+   {
+    "member_data": {
+        "<member_uid>": <no_of_msgs_sent>,
+    },
+    "last_var_assignment": <timestamp>,
+    "member_variables": {
+        "<uid_a>:<uid_b>": ["<C>"]
+    }
+   }
+
+Orbits
+ - configuration:
+   {
+    "background_ref": <uuid_ref_to_file>
+    "relation": <name_of_relation> #None if nothing
+   }
+
+OrbitMessages
+ - attributes:
+   {
+    "read_once": <bool>
+    "color": <color>
+    "media": <bool>
+    "tag": <list_of_tagged_profiles>
+   }
+
+SolarMessages
+ - attributes:
+   {
+    "read_once": <bool>
+    "color": <color>
+    "media": <bool>
+    "tag": <list_of_tagged_profiles>
+   }
+
+SolarMembers
+ - attributes:
+   {
+    <empty>
+   }

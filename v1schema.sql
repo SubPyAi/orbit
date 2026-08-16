@@ -10,7 +10,9 @@ CREATE TABLE Users (
     email VARCHAR(512),
     phone CHAR(10),
     DoB DATE,
-    created TIMESTAMP
+    created TIMESTAMP,
+    pfp_ref varchar(128) DEFAULT "None",
+    online BOOL DEFAULT FALSE
 );
 
 CREATE TABLE Solars (
@@ -40,14 +42,15 @@ CREATE TABLE Orbits (
     M FLOAT DEFAULT 0,
     I INT DEFAULT 0,
     user_a_last_response TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_b_last_response TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_b_last_response TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    configuration JSON
 );
 
 CREATE TABLE SolarMembers (
     sl_id CHAR(128),
-    role VARCHAR(64),
     id CHAR(128),
-    joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    attributes JSON
 );
 
 CREATE TABLE OrbitMessages (
@@ -56,7 +59,8 @@ CREATE TABLE OrbitMessages (
     id CHAR(128),
     data TEXT,
     at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    edited INT DEFAULT 0
+    edited INT DEFAULT 0,
+    attributes JSON
 );
 
 CREATE TABLE SolarMessages (
@@ -65,5 +69,6 @@ CREATE TABLE SolarMessages (
     id CHAR(128),
     data TEXT,
     at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    edited INT DEFAULT 0
+    edited INT DEFAULT 0,
+    attributes JSON
 );
