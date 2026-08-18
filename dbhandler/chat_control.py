@@ -1,4 +1,7 @@
 import uuid
+import objects
+import objects
+from objects import OrbitMessage
 from dbhandler import sql_handler
 
 class ChatControl:
@@ -29,7 +32,10 @@ class ChatControl:
         if result is None:
             return 67
         else:
-            return result
+            list_messages = []
+            for message_data in result:
+                list_messages.append(OrbitMessage(*message_data))
+            return list_messages
 
     def delete_message(msg_id):
         query = "delete from OrbitMessages where msg_id = %s"
@@ -47,4 +53,4 @@ class ChatControl:
         if result is None:
             return 67
         else:
-            return result
+            return OrbitMessage(*result[0])

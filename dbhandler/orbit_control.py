@@ -1,17 +1,19 @@
 import uuid
+import objects
+from objects import Orbit
 from dbhandler import sql_handler
 
 class OrbitControl:
 
-    def create_orbit(IDa, IDb):
-        orb_id = str(uuid.uuid4())
-        query = "insert into Orbits (orb_id, user_a, user_b) values (%s, %s, %s)"
-        params = (orb_id, IDa, IDb)
+    def create_orbit(orb: Orbit):
+        orb.orb_id = str(uuid.uuid4())
+        query = "insert into Orbits (orb_id, user_a, user_b, configuration) values (%s, %s, %s, %s)"
+        params = (orb.orb_id, orb.user_a, orb.user_b, orb.configuration)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 67
         else:
-            return orb_id
+            return orb.orb_id
 
     def get_orbit(orb_id):
         query = "select * from Orbits where orb_id = %s"
@@ -20,7 +22,7 @@ class OrbitControl:
         if result is None:
             return 67
         else:
-            return result
+            return Orbit(*result[0])
 
     def delete_orbit(orb_id):
         query = "delete from Orbits where orb_id = %s"

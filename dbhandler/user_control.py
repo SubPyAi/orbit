@@ -1,19 +1,21 @@
 import time
 import uuid
 import argon2
+import objects
+from objects import User
 from dbhandler import sql_handler
 
 argonHasher = argon2.PasswordHasher()
 
 class UserControl:
 
-    def create_user(username, password, email, phone, dob):
+    def create_user(username, password, email, phone, dob, pfp_ref = None):
         uid = str(uuid.uuid4())
         password = argonHasher.hash(password)
         if len(sql_handler.put_query("select * from users where username = %s;", (username,))) > 0:
             return 1
-        query = "insert into users (id, username, password, email, phone, DoB, created) values (%s, %s, %s, %s, %s, %s, %s)"
-        params = (uid, username, password, email, phone, dob, time.strftime('%Y-%m-%d %H:%M:%S'))
+        query = "insert into users (id, username, password, email, phone, DoB, created, pfp_ref) values (%s, %s, %s, %s, %s, %s, %s, %s)"
+        params = (uid, username, password, email, phone, dob, time.strftime('%Y-%m-%d %H:%M:%S'), pfp_ref)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 67
@@ -28,7 +30,7 @@ class UserControl:
             if result is None:
                 return 67
             else:
-                return result
+                return User(*result[0])
         else:
             return 1
 
@@ -84,26 +86,19 @@ class UserControl:
         query = "select * from users where username = %s"
         params = (username,)
         result = sql_handler.put_query(query, params)
-        if result is None:
+        if result == []:
             return 1
         else:
+            print(result)
             hash = result[0][2]
             try:
                 argonHasher.verify(hash, password)
-                query = "update users set online = 1 where username = %s"
-                params = (username,)
-                result = sql_handler.put_query(query, params)
+                #query = "update users set online = 1 where username = %s"
+                #params = (username,)
+                #result = sql_handler.put_query(query, params)
                 return 0
             except:
-                return 2
+                return 1
 
-    def disconnect_user(id):
-        query = "update users set online = 0 where id = %s"
-        params = (id,)
-        result = sql_handler.put_query(query, params)
-        if result is None:
-            return 1
-        else:
-            return 0
 
     

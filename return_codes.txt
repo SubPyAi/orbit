@@ -1,0 +1,23 @@
+1. dbhandler
+ a. UserControl
+  i. validate_user
+     - 0 : User Validated Successfully
+     - 1 : Invalid Username/Password
+  ii. get_user
+     - 67 : Internal mysql error
+     - 1 : Username not found
+     - user : Returns User Object on successful execution
+  iii. update_user
+     - 67 : Internal mysql error
+     - 0 : Execution successful
+ b. SessionControl
+  i. create_session
+     - 67 : User not found or mysql anomaly
+     - session_id : Session ID on successful execution
+  ii. validate_session
+     - 67 : Session not found or mysql anomaly
+     - 0 : Session Valid
+     - 1 : Session Revoke
+  iii. get_session
+     - 67 : Session not found or mysql anomaly
+     - Session (object) : Session Object return on successful execution

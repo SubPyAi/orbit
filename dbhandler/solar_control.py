@@ -2,6 +2,8 @@ import uuid
 import datetime
 import json
 import itertools
+import objects
+from objects import Solar
 from dbhandler import sql_handler
 from dbhandler.user_control import UserControl
 
@@ -40,7 +42,7 @@ class SolarControl:
         elif request == []:
             return 1
         else:
-            return request
+            return Solar(*request[0])
 
     def update_solar(sl_id, name=None, configuration=None):
         query = 'update Solars set '

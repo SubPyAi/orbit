@@ -1,12 +1,14 @@
 import uuid
+import objects
+from objects import SolarMessage
 from dbhandler import sql_handler
 
 class SolarMsgControl:
 
-    def add_message(sl_id, user_id, message):
+    def add_message(sl_id, user_id, message, attributes):
         msg_id = str(uuid.uuid4())
-        query = "insert into SolarMessages (msg_id, sl_id, id, data) values (%s, %s, %s, %s)"
-        params = (msg_id, sl_id, user_id, message)
+        query = "insert into SolarMessages (msg_id, sl_id, id, data, attributes) values (%s, %s, %s, %s, %s)"
+        params = (msg_id, sl_id, user_id, message, attributes)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 67
@@ -29,7 +31,10 @@ class SolarMsgControl:
         if result is None:
             return 67
         else:
-            return result
+            list_messages = []
+            for message_data in result:
+                list_messages.append(SolarMessage(*message_data))
+            return list_messages
 
     def delete_message(msg_id):
         query = "delete from SolarMessages where msg_id = %s"
@@ -47,4 +52,4 @@ class SolarMsgControl:
         if result is None:
             return 67
         else:
-            return result
+            return SolarMessage(*result[0])

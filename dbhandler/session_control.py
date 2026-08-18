@@ -1,5 +1,7 @@
 import uuid
 import datetime
+import objects
+from objects import OrbitSession
 from dbhandler import sql_handler
 
 class SessionControl:
@@ -13,7 +15,7 @@ class SessionControl:
         if result is None:
             return 67
         else:
-            return 0
+            return sess_id
 
     def validate_session(sess_id):
         query = "select void from sessions where sessid = %s"
@@ -36,11 +38,12 @@ class SessionControl:
         else:
             return 0
 
-    def get_session(id):
-        query = "select * from sessions where id = %s"
-        params = (id,)
+    def get_session(session_id):
+        query = "select * from sessions where sessid = %s"
+        params = (session_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
             return 67
         else:
-            return result
+            print(result)
+            return OrbitSession(*result[0])
