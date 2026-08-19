@@ -1,23 +1,220 @@
-1. dbhandler
- a. UserControl
-  i. validate_user
-     - 0 : User Validated Successfully
-     - 1 : Invalid Username/Password
-  ii. get_user
-     - 67 : Internal mysql error
-     - 1 : Username not found
-     - user : Returns User Object on successful execution
-  iii. update_user
-     - 67 : Internal mysql error
-     - 0 : Execution successful
- b. SessionControl
-  i. create_session
-     - 67 : User not found or mysql anomaly
-     - session_id : Session ID on successful execution
-  ii. validate_session
-     - 67 : Session not found or mysql anomaly
-     - 0 : Session Valid
-     - 1 : Session Revoke
-  iii. get_session
-     - 67 : Session not found or mysql anomaly
-     - Session (object) : Session Object return on successful execution
+Orbit Database Handler Return Codes
+===================================
+
+General conventions
+-------------------
+67          Internal database or MySQL error
+0           Successful execution
+1, 2, 3...  Operation-specific result described below
+
+Successful queries return an object, a list, or an identifier instead of a
+numeric status code where noted.
+
+
+UserControl
+-----------
+
+validate_user(username, password)
+  0   User validated successfully
+  1   Invalid username or password
+
+get_user(uid)
+  67  Internal MySQL error
+  1   User not found
+  User object returned on successful execution
+
+update_user(uid, ...)
+  67  Internal MySQL error
+  0   Execution successful
+
+create_user(username, password, email, phone, dob, pfp_ref)
+  67  Internal database error
+  1   Username already exists
+  0   Execution successful
+
+delete_user(uid)
+  67  Internal database error
+  0   Execution successful
+
+get_uid(username)
+  67  Internal database error
+  User ID returned on successful execution
+
+
+SessionControl
+--------------
+
+create_session(user_id)
+  67          User not found or MySQL anomaly
+  Session ID  Returned on successful execution
+
+validate_session(sess_id)
+  67  Session not found or MySQL anomaly
+  0   Session valid
+  1   Session revoked
+
+get_session(session_id)
+  67              Session not found or MySQL anomaly
+  Session object  Returned on successful execution
+
+revoke_session(sess_id)
+  67  Internal database error
+  0   Execution successful
+
+
+VerificationControl
+--------------------
+
+add_new_verification(id, user_identifier, token, type)
+  2   SMTP failure
+  1   Repeated token
+  0   Successful execution
+
+validate_token(id, token)
+  67  Internal MySQL error
+  2   No active validation request
+  1   Wrong token
+  0   Successful execution
+
+
+SolarControl
+------------
+
+create_solar(user_id, name, conf)
+  67      Internal database error
+  1       Invalid creator user ID
+  Solar ID returned on successful execution
+
+get_solar(sl_id)
+  67           Internal database error
+  1            Invalid solar ID
+  Solar object returned on successful execution
+
+delete_solar(sl_id)
+  67  Internal database error
+  0   Execution successful
+
+update_solar(sl_id, name, configuration)
+  67  Internal database error
+  0   Execution successful
+
+update_solar_msg_data(sl_id, msgdata)
+  67  Internal database error
+  0   Execution successful
+
+add_role(sl_id, role, permissions)
+  67  Internal database error
+  1   Role already exists
+  0   Execution successful
+
+remove_role(sl_id, role)
+  67  Internal database error
+  2   Role not empty
+  1   Role not found
+  0   Execution successful
+
+assign_role(sl_id, id, role)
+  67  Internal database error
+  1   Role not found
+  2   User is not a solar member
+  0   Execution successful
+
+add_member(sl_id, id, uname, role)
+  67  Internal database error
+  1   User is banned
+  2   User is already a member
+  3   Solar has reached its member limit
+  0   Execution successful
+
+remove_member(sl_id, id)
+  67  Internal database error
+  1   User is not a member
+  0   Execution successful
+
+ban_member(sl_id, id)
+  67  Internal database error
+  1   User is already banned
+  0   Execution successful
+
+unban_member(sl_id, id)
+  67  Internal database error
+  1   User is not banned
+  0   Execution successful
+
+get_solars(id)
+  List of Solar objects returned for the user's memberships
+
+get_user_permissions(sl_id, id)
+  List of the user's permissions returned
+
+
+OrbitControl
+------------
+
+create_orbit(orb)
+  67        Internal database error
+  Orbit ID  Returned on successful execution
+
+get_orbit(orb_id)
+  67           Internal database error
+  Orbit object returned on successful execution
+
+delete_orbit(orb_id)
+  67  Internal database error
+  0   Execution successful
+
+delete_orbit_messages(orb_id)
+  67  Internal database error
+  0   Execution successful
+
+update_orbit(orb_id, ...)
+  67  Internal database error
+  0   Execution successful
+
+
+ChatControl
+-----------
+
+add_message(orb_id, user_id, message)
+  67  Internal database error
+  0   Execution successful
+
+update_message(msg_id, message)
+  67  Internal database error
+  0   Execution successful
+
+get_messages(orb_id, offset, limit)
+  67                 Internal database error
+  List of messages  OrbitMessage objects returned
+
+delete_message(msg_id)
+  67  Internal database error
+  0   Execution successful
+
+get_message(msg_id)
+  67             Internal database error
+  OrbitMessage   Returned on successful execution
+
+
+SolarMsgControl
+---------------
+
+add_message(sl_id, user_id, message, attributes)
+  67  Internal database error
+  0   Execution successful
+
+update_message(msg_id, message)
+  67  Internal database error
+  0   Execution successful
+
+get_messages(sl_id, offset, limit)
+  67                 Internal database error
+  List of messages  SolarMessage objects returned
+
+delete_message(msg_id)
+  67  Internal database error
+  0   Execution successful
+
+get_message(msg_id)
+  67              Internal database error
+  SolarMessage    Returned on successful execution

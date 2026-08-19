@@ -5,19 +5,22 @@ Solars
    {
     "max_members": <int>,
     "allow_edit": <bool>,
-    "allow_delte": <bool>,
+    "allow_delete": <bool>,
     "allow_media": <bool>,
     "read_status_visibility": <bool>,
     "online_status_visibility": <bool>,
     "background_ref": <uuid_ref_to_file>,
     "pfp_ref": <uuid_ref_to_file>,
     "roles": {
-        "<role>": "<permissions>"
+        "<role>": "<permissions>" # permissions include (send_message, send_media, manage_members, manage_roles, manage_config, manage_messages)
     },
     "members": {
         "<uid>": "<uname> #can be modified by specific role holders and self"
     },
-    "ban_list": [<uid>]
+    "ban_list": [<uid>],
+    "role_map": {
+      "roles.role": ["<uid>"]
+    }
    }
 
  - msgdata:

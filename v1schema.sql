@@ -25,8 +25,8 @@ CREATE TABLE Solars (
 );
 
 CREATE TABLE Sessions (
-    sessid CHAR(128),
-    id CHAR(128) PRIMARY KEY,
+    sessid CHAR(128) PRIMARY KEY,
+    id CHAR(128),
     created TIMESTAMP,
     void BOOL DEFAULT FALSE
 );
@@ -72,3 +72,13 @@ CREATE TABLE SolarMessages (
     edited INT DEFAULT 0,
     attributes JSON
 );
+
+CREATE TABLE VerificationBlock (
+    v_id CHAR(128) PRIMARY KEY,
+    id CHAR(128),
+    identifier VARCHAR(16),
+    token_hash CHAR(255) UNIQUE,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL 30 MINUTE),
+    used BOOL DEFAULT FALSE
+)

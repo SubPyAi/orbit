@@ -1,5 +1,6 @@
 import json
 import fastapi
+import secrets
 import api_model
 import dbhandler
 
@@ -9,6 +10,7 @@ from dbhandler import SolarControl
 from dbhandler import SolarMsgControl
 from dbhandler import ChatControl
 from dbhandler import SessionControl
+from dbhandler import VerificationControl
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -56,8 +58,11 @@ def login(username: str = None, password: str = None, session: str = None):
         return {"status": 2, "Error": "Unexpeced input error."}
 
 @app.post('/api/v1/auth/logout')
-def logout(session: str):
-    result = SessionControl.revoke_session(session)
+def logout(request: Request):
+    sessionid = request.cookies.get('session')
+    if not sessionid:
+        pass
+    result = SessionControl.revoke_session(sessionid)
     if result == 67:
         return {"status": 2, "Error": "Internal database error"}
     else:
@@ -117,13 +122,21 @@ def get_user(uname: str = None, uid: str = None):
     else:
         return {"status": 2, "Error": "Invalid request!"}
 
+
+# USER VERIFICATION FUNCTIONS
+
+def send_new_verification_email(id, email):
+    return VerificationControl.add_new_verification(id, email, "".join([str(secrets.randbelow(10)) for _ in range(6)]), 'email')
+
+def verify_token(id, token):
+    return VerificationControl.validate_token(id, token)
         
 # USER LEVEL ACCOUNT MODIFICATION FUNCTIONS
 
 @app.patch('/api/v1/users/modify')
 def modify_user(params: str, request: Request):
     sessid = request.cookies.get("session")
-    if not sessid:
+    if sessid:
         result = SessionControl.validate_session(sessid)
         params = json.loads(params)
         if result == 67:
@@ -144,10 +157,162 @@ def modify_user(params: str, request: Request):
     else:
         return {"status": 3, "AuthError": "Unauthorised request"}
 
+# SOLAR CRUD
 
+@app.post('/api/v1/solars/create')
+def create_solar(params: str, request: Request):
+    params = json.loads(params)
+    session = SessionControl.get_session(request.cookies.get('session'))
+    if session != 67:
+        res = SolarControl.create_solar(session.id, params['name'], json.dumps(params['configuration']))
+        if res == 67:
+            return {"status": 2, "Error": "Internal database error"}
+        elif res == 1:
+            return {"status": 1, "Error": "Invalid Session token"}
+        else:
+            return {"status": 0, "sl_id": res}
+    else:
+        return {"status": 2, "Error": "Internal database error"}
 
+@app.get('/api/v1/solars/get/{sl_id}')
+def get_solar(sl_id: str):
+    solar = SolarControl.get_solar(sl_id)
+    if solar == 67:
+        return {"status": 2, "Error": "Internal database error"}
+    elif solar == 1:
+        return {"status": 1, "Error": "Invalid Solar ID"}
+    else:
+        return {"status": 0, "sl_id": solar.sl_id, "id": solar.id, "name": solar.name, "configuration": solar.configuration, "created": solar.created}
 
+@app.get('/api/v1/solars/mysolars')
+def get_user_solars(request: Request):
+    session = SessionControl.get_session(request.cookies.get('session'))
+    if session == 67:
+        return {"status": 2, "Error": "Internal database error"}
+    else:
+        solars = SolarControl.get_solars(session.id)
+        return {"status": 0, "solars": solars}
 
+@app.post('/api/v1/solars/{sl_id}/leave')
+def leave_solar(sl_id: str, request: Request):
+    session = SessionControl.get_session(request.cookies.get('session'))
+    if session == 67:
+        return {"status": 1, "AuthError": "Unauthorised request"}
+
+    result = SolarControl.remove_member(sl_id, session.id)
+    if result == 67:
+        return {"status": 2, "Error": "Internal database error"}
+    elif result == 1:
+        return {"status": 1, "Error": "User is not a member!"}
+    else:
+        return {"status": 0}
+
+@app.patch('/api/v1/solars/{sl_id}/modify/{key}')
+def modify_solar(sl_id: str, key: str, value, action, request: Request):
+    session = SessionControl.get_session(request.cookies.get('session'))
+    perms = SolarControl.get_user_permissions(sl_id, session.id)
+    if key == 'members':
+        if "manage_members" in perms:
+            # value must be of type [{"id": id, "uname": uname, "role": []}, ...]
+            if action == 'add':
+                for i in value:
+                    res = SolarControl.add_member(sl_id, i['id'], i['uname'], i['role'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    else:
+                        pass
+                return {"status": 0}
+            elif action == 'remove':
+                for i in value:
+                    res = SolarControl.remove_member(sl_id, i['id'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    else:
+                        pass
+                return {"status": 0}
+            elif action == 'ban':
+                for i in value:
+                    res = SolarControl.remove_member(sl_id, i['id'])
+                    SolarControl.ban_member(sl_id, i['id'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    else:
+                        pass
+                return {"status": 0}
+            elif action == 'unban':
+                for i in value:
+                    res = SolarControl.unban_member(sl_id, i['id'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    else:
+                        pass
+                return {"status": 0}
+            else:
+                return {"status": 1, "InvalidInput": "Invalid request!"}
+        else:
+            return {"status": 1, "PermsError": "Insufficient permissions!"}
+    elif key == 'roles':
+        if "manage_roles" in perms:
+            if action == 'add':
+                for i in value:
+                    res = SolarControl.add_role(sl_id, i['role'], i['perms'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    elif res == 1:
+                        return {"status": 1, "Error": "Role already exists!"}
+                    else:
+                        pass
+                return {"status": 0}
+            elif action == 'remove':
+                for i in value:
+                    res = SolarControl.remove_role(sl_id, i['role'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    elif res == 2:
+                        return {"status": 1, "Error": "Role not empty!"}
+                    elif res == 1:
+                        return {"status": 1, "Error": "Role not found!"}
+                    else:
+                        return {"status": 0}
+            elif action == 'assign':
+                for i in value:
+                    res = SolarControl.assign_role(sl_id, i['id'], i['role'])
+                    if res == 67:
+                        return {"status": 2, "Error": "Internal database error"}
+                    elif res == 1:
+                        return {"status": 1, "Error": "Role not found!"}
+                    elif res == 2:
+                        return {"status": 1, "Error": "User is not a member!"}
+                    else:
+                        pass
+            else:
+                return {"status": 1, "InvalidInput": "Invalid request!"}
+        else:
+            return {"status": 1, "PermsError": "Insufficient permissions!"}
+    elif key == 'config':
+        if "manage_config" not in perms:
+            return {"status": 1, "PermsError": "Insufficient permissions!"}
+
+        if action not in ('update', 'set'):
+            return {"status": 1, "InvalidInput": "Invalid request!"}
+
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                return {"status": 1, "InvalidInput": "Configuration must be valid JSON!"}
+
+        if not isinstance(value, dict):
+            return {"status": 1, "InvalidInput": "Configuration must be a JSON object!"}
+
+        res = SolarControl.update_solar(sl_id, configuration=json.dumps(value))
+        if res == 67:
+            return {"status": 2, "Error": "Internal database error"}
+        else:
+            return {"status": 0}
+    else:
+        return {"status": 1, "InvalidInput": "Invalid request!"}
+                    
 @app.get('/')
 def root():
     return {"message": "fastapi server is live!"}

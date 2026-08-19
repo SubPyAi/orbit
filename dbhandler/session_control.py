@@ -39,11 +39,10 @@ class SessionControl:
             return 0
 
     def get_session(session_id):
-        query = "select * from sessions where sessid = %s"
+        query = "select * from sessions where sessid = %s and void = 0"
         params = (session_id,)
         result = sql_handler.put_query(query, params)
-        if result is None:
+        if result is None or result == []:
             return 67
         else:
-            print(result)
             return OrbitSession(*result[0])
