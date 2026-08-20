@@ -2,8 +2,11 @@ import json
 import fastapi
 import secrets
 import api_model
+import objects
 import error_handler
 import dbhandler
+
+from objects import ActiveWSConnection
 
 from error_handler import ErrorCodes
 from error_handler import OrbitException
@@ -17,6 +20,9 @@ from api_model import ModifyUserRequest
 from api_model import CreateSolarRequest
 from api_model import ModifySolarRequest
 from api_model import SolarConfiguration
+from api_model import CreateOrbitRequest
+from api_model import GetOrbitRequest
+from api_model import ModifyOrbitRequest
 
 from dbhandler import UserControl
 from dbhandler import OrbitControl
@@ -27,6 +33,8 @@ from dbhandler import SessionControl
 from dbhandler import VerificationControl
 
 from fastapi import Request
+from fastapi import WebSocket
+from fastapi import WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
@@ -306,7 +314,123 @@ def modify_solar(params: ModifySolarRequest):
         return {"status": 0}
     else:
         raise_for_error(error_codes.INVALID_INPUT_FORMAT)
-                    
+
+# ORBIT FUNCTIONS
+
+@app.post('/api/v1/orbits/create')
+def create_orbit(params: CreateOrbitRequest):
+    session = SessionControl.get_session(str(params.session))
+    raise_for_error(session)
+    if session.id not in (params.user_a, params.user_b):
+        raise_for_error(error_codes.UNAUTHORISED_REQUEST)
+    res = OrbitControl.create_orbit(str(params.user_a), str(params.user_b), params.configuration)
+    raise_for_error(res)
+    return {"status": 0, "orb_id": res}
+
+@app.get('/api/v1/orbits/get/orb_id')
+def get_orbit(params: GetOrbitRequest):
+    session = SessionControl.get_session(str(params.session))
+    raise_for_error(session)
+    orbit = OrbitControl.get_orbit(params.orb_id)
+    raise_for_error(orbit)
+    if session.id not in [orbit.user_a, orbit.user_b]:
+        raise_for_error(error_codes.UNAUTHORISED_REQUEST)
+    return {
+        "status": 0,
+        "orb_id": orbit.orb_id,
+        "user_a": orbit.user_a,
+        "user_b": orbit.user_b,
+        "user_a_msgs": orbit.user_a_msgs,
+        "user_b_msgs": orbit.user_b_msgs,
+        "last_var_assignment": orbit.last_var_assignment,
+        "G": orbit.G,
+        "M": orbit.M,
+        "I": orbit.I,
+        "user_a_last_response": orbit.user_a_last_response,
+        "user_b_last_response": orbit.user_b_last_response,
+        "configuration": orbit.configuration
+        }
+
+@app.get('/api/v1/orbits/get/me')
+def get_user_orbits(params: Request):
+    session = SessionControl.get_session(str(params.cookies.get('session')))
+    raise_for_error(session)
+    orbits = OrbitControl.get_user_orbits(session.id)
+    raise_for_error(orbits)
+    result = {"status": 0, "orbits": []}
+    for orbit in orbits:
+        result['orbits'].append({
+            "orb_id": orbit.orb_id,
+            "user_a": orbit.user_a,
+            "user_b": orbit.user_b,
+            "user_a_msgs": orbit.user_a_msgs,
+            "user_b_msgs": orbit.user_b_msgs,
+            "last_var_assignment": orbit.last_var_assignment,
+            "G": orbit.G,
+            "M": orbit.M,
+            "I": orbit.I,
+            "user_a_last_response": orbit.user_a_last_response,
+            "user_b_last_response": orbit.user_b_last_response,
+            "configuration": orbit.configuration
+        })
+
+    return result
+
+@app.patch('/api/v1/orbits/modify')
+def modify_orbit(params: ModifyOrbitRequest):
+    session = SessionControl.get_session(str(params.session))
+    raise_for_error(session)
+    orbit = OrbitControl.get_orbit(params.orb_id)
+    raise_for_error(orbit)
+    if params.very_close is not None:
+        orbit.configuration.very_close = params.very_close
+    if params.background_ref:
+        orbit.configuration.background_ref = params.background_ref
+    res = OrbitControl.update_orbit(str(params.orb_id), orbit.configuration.model_dump_json())
+    raise_for_error(res)
+    return {"status": 0}
+
+
+#
+# WEBSOCKET IMPLEMENTATION
+#
+
+active_users = []
+
+@app.websocket('/ws')
+async def ws_endpoint(websocket: WebSocket):
+    await websocket.accept()
+
+    auth = await websocket.receive_json()
+
+    #res = SessionControl.validate_session(auth['id'])
+    #raise_for_error(res)
+    #
+    #if not res:
+    #    raise_for_error(error_codes.SESSION_EXPIRED)
+    #
+    
+    active_users.append(ActiveWSConnection(websocket, auth['id'], 0))
+    print(f"[ORBIT WS] New websocket establised from {auth['id']}")
+
+    await websocket.send_json({
+        "status": 0,
+    })
+
+    try:
+        while True:
+            data = await websocket.receive_json()
+
+            # NEXT TODO: IMPLEMENT WEBSOCKET COMMUNICATION ON ORBIT
+
+            await websocket.send_json({
+                "status": 0,
+                "data": data
+            })
+
+    except WebSocketDisconnect:
+        pass
+
 @app.get('/')
 def root():
     return {"message": "fastapi server is live!"}

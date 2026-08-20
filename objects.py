@@ -1,3 +1,5 @@
+from fastapi import WebSocket
+
 class User:
     def __init__(self, id, username, password, email, phone, DoB, created, pfp_ref, online):
         self.id = id
@@ -74,3 +76,8 @@ class SolarMessage:
         self.edited = edited
         self.attributes = attributes
 
+class ActiveWSConnection:
+    def __init__(self, ws: WebSocket, id, void):
+        self.ws = ws
+        self.id = id
+        self.void = void

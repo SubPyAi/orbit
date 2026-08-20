@@ -153,4 +153,22 @@ class ModifySolarRequest(BaseModel):
     action: str
     value: list[SolarModificationItem]
 
+class OrbitConfiguration(BaseModel):
+    very_close: bool
+    background_ref: UUID | None = None
 
+class CreateOrbitRequest(BaseModel):
+    user_a: UUID
+    user_b: UUID
+    configuration: OrbitConfiguration
+    session: UUID
+
+class GetOrbitRequest(BaseModel):
+    orb_id: UUID
+    session: UUID
+
+class ModifyOrbitRequest(BaseModel):
+    orb_id: UUID
+    session: UUID
+    very_close: bool | None = None
+    background_ref: UUID | None = None

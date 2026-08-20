@@ -20,6 +20,8 @@ class ErrorCodes:
         self.UNAUTHORISED_REQUEST = 117
         self.INSUFFICIENT_PERMISSION = 118
         self.ROLE_DOES_NOT_EXIST = 119
+        self.ORBIT_ALREADY_EXISTS = 120
+        self.SESSION_EXPIRED = 121
 
 
 class OrbitException(Exception):
@@ -49,7 +51,9 @@ class OrbitException(Exception):
             error_codes.NO_USER_LOGGED_IN: "No logged in user",
             error_codes.UNAUTHORISED_REQUEST: "Unauthorised request",
             error_codes.INSUFFICIENT_PERMISSION: "Current permissions are insufficient for the modification",
-            error_codes.ROLE_DOES_NOT_EXIST: "The requested role does not exist!"
+            error_codes.ROLE_DOES_NOT_EXIST: "The requested role does not exist",
+            error_codes.ORBIT_ALREADY_EXISTS: "The requested orbit alreasy exists",
+            error_codes.SESSION_EXPIRED: "The current session has been expired"
         }
         return {
             "status": self.error_code,
