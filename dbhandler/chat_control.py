@@ -1,8 +1,11 @@
 import uuid
 import objects
 import objects
+from error_handler import ErrorCodes
 from objects import OrbitMessage
 from dbhandler import sql_handler
+
+error_codes = ErrorCodes()
 
 class ChatControl:
 
@@ -12,7 +15,7 @@ class ChatControl:
         params = (msg_id, orb_id, user_id, message)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -21,7 +24,7 @@ class ChatControl:
         params = (message, msg_id)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -30,7 +33,7 @@ class ChatControl:
         params = (orb_id, limit, offset)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             list_messages = []
             for message_data in result:
@@ -42,7 +45,7 @@ class ChatControl:
         params = (msg_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -51,6 +54,6 @@ class ChatControl:
         params = (msg_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return OrbitMessage(*result[0])

@@ -2,10 +2,12 @@ import time
 import uuid
 import argon2
 import objects
+from error_handler import ErrorCodes
 from objects import User
 from dbhandler import sql_handler
 
 argonHasher = argon2.PasswordHasher()
+error_codes = ErrorCodes()
 
 class UserControl:
 
@@ -13,12 +15,12 @@ class UserControl:
         uid = str(uuid.uuid4())
         password = argonHasher.hash(password)
         if len(sql_handler.put_query("select * from users where username = %s;", (username,))) > 0:
-            return 1
+            return error_codes.USER_ALREADY_EXISTS
         query = "insert into users (id, username, password, email, phone, DoB, created, pfp_ref) values (%s, %s, %s, %s, %s, %s, %s, %s)"
         params = (uid, username, password, email, phone, dob, time.strftime('%Y-%m-%d %H:%M:%S'), pfp_ref)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -28,18 +30,18 @@ class UserControl:
         result = sql_handler.put_query(query, params)
         if result != []:
             if result is None:
-                return 67
+                return error_codes.DB_ERROR
             else:
                 return User(*result[0])
         else:
-            return 1
+            return error_codes.USER_NOT_FOUND
 
     def delete_user(uid):
         query = "delete from users where id = %s"
         params = (uid,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -69,7 +71,7 @@ class UserControl:
         params.append(uid)
         result = sql_handler.put_query(query, tuple(params))
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -78,7 +80,7 @@ class UserControl:
         params = (username,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return result[0][0]
 
@@ -87,7 +89,7 @@ class UserControl:
         params = (username,)
         result = sql_handler.put_query(query, params)
         if result == []:
-            return 1
+            return error_codes.USER_NOT_FOUND
         else:
             print(result)
             hash = result[0][2]
@@ -98,7 +100,7 @@ class UserControl:
                 #result = sql_handler.put_query(query, params)
                 return 0
             except:
-                return 1
+                return error_codes.USER_NOT_VALIDATED
 
 
     

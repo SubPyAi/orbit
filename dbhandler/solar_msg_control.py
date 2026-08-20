@@ -1,7 +1,10 @@
 import uuid
 import objects
+from error_handler import ErrorCodes
 from objects import SolarMessage
 from dbhandler import sql_handler
+
+error_codes = ErrorCodes()
 
 class SolarMsgControl:
 
@@ -11,7 +14,7 @@ class SolarMsgControl:
         params = (msg_id, sl_id, user_id, message, attributes)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -20,7 +23,7 @@ class SolarMsgControl:
         params = (message, msg_id)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -29,7 +32,7 @@ class SolarMsgControl:
         params = (sl_id, limit, offset)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             list_messages = []
             for message_data in result:
@@ -41,7 +44,7 @@ class SolarMsgControl:
         params = (msg_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -50,6 +53,6 @@ class SolarMsgControl:
         params = (msg_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return SolarMessage(*result[0])

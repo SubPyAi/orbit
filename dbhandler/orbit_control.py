@@ -1,7 +1,10 @@
 import uuid
 import objects
+from error_handler import ErrorCodes
 from objects import Orbit
 from dbhandler import sql_handler
+
+error_codes = ErrorCodes()
 
 class OrbitControl:
 
@@ -11,7 +14,7 @@ class OrbitControl:
         params = (orb.orb_id, orb.user_a, orb.user_b, orb.configuration)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return orb.orb_id
 
@@ -20,7 +23,7 @@ class OrbitControl:
         params = (orb_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return Orbit(*result[0])
 
@@ -29,7 +32,7 @@ class OrbitControl:
         params = (orb_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -38,7 +41,7 @@ class OrbitControl:
         params = (orb_id,)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
 
@@ -71,6 +74,6 @@ class OrbitControl:
         params.append(orb_id)
         result = sql_handler.put_query(query, params)
         if result is None:
-            return 67
+            return error_codes.DB_ERROR
         else:
             return 0
