@@ -1,17 +1,21 @@
 import uuid
 import objects
-import objects
+
 from error_handler import ErrorCodes
 from objects import OrbitMessage
 from dbhandler import sql_handler
+from dbhandler.orbit_control import OrbitControl
 
 error_codes = ErrorCodes()
 
 class ChatControl:
 
-    def add_message(orb_id, user_id, message):
+    def add_message(orb_id, user_id, message, attributes):
         msg_id = str(uuid.uuid4())
-        query = "insert into OrbitMessages (msg_id, orb_id, id, data) values (%s, %s, %s, %s)"
+        res = OrbitControl.is_user_in_orbit(orb_id, user_id)
+        if not res:
+            return error_codes.UNAUTHORISED_REQUEST
+        query = "insert into OrbitMessages (msg_id, orb_id, id, data, attributes) values (%s, %s, %s, %s)"
         params = (msg_id, orb_id, user_id, message)
         result = sql_handler.put_query(query, params)
         if result is None:

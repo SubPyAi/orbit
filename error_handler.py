@@ -22,6 +22,12 @@ class ErrorCodes:
         self.ROLE_DOES_NOT_EXIST = 119
         self.ORBIT_ALREADY_EXISTS = 120
         self.SESSION_EXPIRED = 121
+        self.BAD_WS_REQ = 122
+        self.ORBIT_DOES_NOT_EXIST = 123
+        self.DELETION_NOT_ALLOWED_IN_SOLAR = 124
+        self.MESSAGE_DOES_NOT_EXIST = 125
+        self.EDITING_NOT_ALLOWED_IN_SOLAR = 126
+        self.MEDIA_NOT_ALLOWED_IN_SOLAR = 127
 
 
 class OrbitException(Exception):
@@ -53,7 +59,13 @@ class OrbitException(Exception):
             error_codes.INSUFFICIENT_PERMISSION: "Current permissions are insufficient for the modification",
             error_codes.ROLE_DOES_NOT_EXIST: "The requested role does not exist",
             error_codes.ORBIT_ALREADY_EXISTS: "The requested orbit alreasy exists",
-            error_codes.SESSION_EXPIRED: "The current session has been expired"
+            error_codes.SESSION_EXPIRED: "The current session has been expired",
+            error_codes.BAD_WS_REQ: "Bad WebSocket Request",
+            error_codes.ORBIT_DOES_NOT_EXIST: "Orbit does not exist",
+            error_codes.DELETION_NOT_ALLOWED_IN_SOLAR: "Message deletion is not allowed in this solar",
+            error_codes.MESSAGE_DOES_NOT_EXIST: "Message does not exist",
+            error_codes.EDITING_NOT_ALLOWED_IN_SOLAR: "Message editing is not allowed in this solar",
+            error_codes.MEDIA_NOT_ALLOWED_IN_SOLAR: "Media communication is not allowed in this solar"
         }
         return {
             "status": self.error_code,

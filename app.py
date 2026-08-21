@@ -5,6 +5,10 @@ import api_model
 import objects
 import error_handler
 import dbhandler
+import ws_handler
+
+from ws_handler import WSHandler
+from ws_handler import WSEvents
 
 from objects import ActiveWSConnection
 
@@ -23,6 +27,7 @@ from api_model import SolarConfiguration
 from api_model import CreateOrbitRequest
 from api_model import GetOrbitRequest
 from api_model import ModifyOrbitRequest
+from api_model import WSRecv
 
 from dbhandler import UserControl
 from dbhandler import OrbitControl
@@ -41,6 +46,7 @@ from fastapi.exceptions import RequestValidationError
 # FASTAPI INITIALISATION
 app = fastapi.FastAPI()
 error_codes = ErrorCodes()
+ws_events = WSEvents()
 
 # ORBIT ERROR HANDLERS
 
@@ -312,6 +318,12 @@ def modify_solar(params: ModifySolarRequest):
         res = SolarControl.update_solar(sl_id, value[0]['configuration'].json_text)
         raise_for_error(res)
         return {"status": 0}
+    elif key == "col":
+        if not value[0].id:
+            raise_for_error(error_codes.INVALID_INPUT_FORMAT)
+        if action != 'set':
+            raise_for_error(error_codes.INVALID_INPUT_FORMAT)
+        res = SolarControl.is_solar_member(sl_id, value[0].id)
     else:
         raise_for_error(error_codes.INVALID_INPUT_FORMAT)
 
@@ -323,7 +335,7 @@ def create_orbit(params: CreateOrbitRequest):
     raise_for_error(session)
     if session.id not in (params.user_a, params.user_b):
         raise_for_error(error_codes.UNAUTHORISED_REQUEST)
-    res = OrbitControl.create_orbit(str(params.user_a), str(params.user_b), params.configuration)
+    res = OrbitControl.create_orbit(str(params.user_a), str(params.user_b), params.configuration.model_dump_json())
     raise_for_error(res)
     return {"status": 0, "orb_id": res}
 
@@ -382,11 +394,16 @@ def modify_orbit(params: ModifyOrbitRequest):
     raise_for_error(session)
     orbit = OrbitControl.get_orbit(params.orb_id)
     raise_for_error(orbit)
-    if params.very_close is not None:
-        orbit.configuration.very_close = params.very_close
+    if params.col:
+        if session.id == orbit.user_a:
+            orbit.configuration.u_a_col = params.col
+        elif session.id == orbit.user_b:
+            orbit.configuration.u_b_col = params.col
+        else:
+            raise_for_error(error_codes.UNAUTHORISED_REQUEST)
     if params.background_ref:
         orbit.configuration.background_ref = params.background_ref
-    res = OrbitControl.update_orbit(str(params.orb_id), orbit.configuration.model_dump_json())
+    res = OrbitControl.update_orbit(str(params.orb_id), orbit.configuration)
     raise_for_error(res)
     return {"status": 0}
 
@@ -421,15 +438,61 @@ async def ws_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
 
-            # NEXT TODO: IMPLEMENT WEBSOCKET COMMUNICATION ON ORBIT
+            try:
+                wsrecv = WSHandler(WSRecv(data['event'], data['data'], auth['id']))
+                res = wsrecv.process()
+                raise_for_error(res)
+                if res == 0:
+                    res_list, res_data = process_updations(wsrecv.update_event)
+            except:
+                raise_for_error(error_codes.BAD_WS_REQ)
 
-            await websocket.send_json({
-                "status": 0,
-                "data": data
-            })
+            for i in res_list:
+                await i.send_json(res_data)
 
     except WebSocketDisconnect:
+        for i in active_users:
+            if i.id == auth['id']:
+                i.revoke()
+
+def process_updations(update_event):
+    event = update_event['event']
+    primary_spec_id = update_event['primary_spec_id']
+    secondary_spec_id = update_event['secondary_spec_id']
+    res_list = []
+    res_data = {
+        "primary_spec_id": primary_spec_id,
+        "secondary_spec_id": secondary_spec_id
+    }
+    if "orbit_message" in event:
+        orbit = OrbitControl.get_orbit(primary_spec_id)
+        for i in active_users:
+            if not i.void and i.id in (orbit.user_a, orbit.user_b):
+                res_list.append(i.ws)
+        res_data['event'] = ws_events.WS_SERVER_UPDATE_ORBIT_MESSAGE
+    elif "solar_message" in event:
+        solar = SolarControl.get_solar_config(primary_spec_id)
+        for i in active_users:
+            if not i.void and i.id in solar['members'].keys():
+                res_list.append(i.ws)
+        res_data['event'] = ws_events.WS_SERVER_UPDATE_SOLAR_MESSAGE
+    elif "orbit_user_color" in event:
+        orbit = OrbitControl.get_orbit(primary_spec_id)
+        for i in active_users:
+            if not i.void and i.id in (orbit.user_a, orbit.user_b):
+                res_list.append(i.ws)
+        res_data['event'] = ws_events.WS_SERVER_UPDATE_ORBIT
+    elif "solar_user_color" in event:
+        solar = SolarControl.get_solar_config(primary_spec_id)
+        for i in active_users:
+            if not i.void and i.id in solar['members'].keys():
+                res_list.append(i.ws)
+        res_data['event'] = ws_events.WS_SERVER_UPDATE_SOLAR
+    else:
         pass
+
+    return (res_list, res_data)
+
 
 @app.get('/')
 def root():

@@ -1,3 +1,4 @@
+import json
 import uuid
 import objects
 from error_handler import ErrorCodes
@@ -41,6 +42,13 @@ class OrbitControl:
                 result.append(Orbit(*i))
             return result
 
+    def is_user_in_orbit(orb_id, id):
+        res = sql_handler.put_query("select * from orbits where (orb_id = %s) and (user_a = %s or user_b = %s)", (orb_id, id, id))
+        if res != []:
+            return True
+        else:
+            return False
+
     def get_orbit_bw_users(id1, id2):
         res = sql_handler.put_query("select * from orbits where (user_a = %s and user_b = %s) or (user_a = %s and user_b = %s)", (id1, id2, id2, id1))
         if res is None:
@@ -65,6 +73,29 @@ class OrbitControl:
             return error_codes.DB_ERROR
         else:
             return 0
+
+    def update_orbit_user_color(orb_id, u_id, col):
+        res = sql_handler.put_query('select * from orbits where orb_id = %s', (orb_id,))
+        if res == None:
+            return error_codes.DB_ERROR
+        if res == []:
+            return error_codes.ORBIT_DOES_NOT_EXIST
+        cfg = json.loads(res[0][11])
+
+        if u_id not in (res[0][1], res[0][2]):
+            return error_codes.UNAUTHORISED_REQUEST
+
+        if u_id == res[0][1]:
+            cfg['u_a_col'] = col
+        else:
+            cfg['u_b_col'] = col
+
+        req = sql_handler.put_query('update orbits set configuration = %s where orb_id = %s', (json.dumps(cfg), orb_id))
+        if req is None:
+            return error_codes.DB_ERROR
+        else:
+            return 0
+        
 
     def update_orbit(orb_id, user_a_msgs = None, user_b_msgs = None, G = None, M = None, I = None, user_a_last_response = None, user_b_last_response = None, configuration = None):
         query = "update Orbits set "

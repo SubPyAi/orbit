@@ -1,0 +1,16 @@
+class WSEvents:
+    def __init__(self):
+        self.WS_CLIENT_ADD_ORBIT_MESSAGE = "add_orbit_message"
+        self.WS_CLIENT_EDIT_ORBIT_MESSAGE = "edit_orbit_message"
+        self.WS_CLIENT_DELETE_ORBIT_MESSAGE = "delete_orbit_message"
+        self.WS_CLIENT_MODIFY_ORBIT_USER_COLOR = "modify_orbit_user_color"
+        self.WS_CLIENT_ADD_SOLAR_MESSAGE = "add_solar_message"
+        self.WS_CLIENT_EDIT_SOLAR_MESSAGE = "edit_solar_message"
+        self.WS_CLIENT_DELETE_SOLAR_MESSAGE = "delete_solar_message"
+        self.WS_CLIENT_MODIFY_SOLAR_USER_COLOR = "modify_solar_user_color"
+        self.WS_SERVER_UPDATE_ORBIT = "update_orbit"
+        self.WS_SERVER_UPDATE_ORBIT_MESSAGE = "update_orbit_message"
+        self.WS_SERVER_UPDATE_SOLAR = "update_solar"
+        self.WS_SERVER_UPDATE_SOLAR_MESSAGE = "update_solar_message"
+        self.WS_SERVER_UPDATE_ORBIT_LIST = "update_orbit_list"
+        self.WS_SERVER_UPDATE_SOLAR_LIST = "update_solar_list"

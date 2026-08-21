@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+from uuid import UUID
 
 class User:
     def __init__(self, id, username, password, email, phone, DoB, created, pfp_ref, online):
@@ -30,6 +31,12 @@ class OrbitSession:
         self.created = created
         self.void = void
 
+class OrbitConfiguration:
+    def __init__(self, very_close, background_ref, u_a_col, u_b_col):
+        self.very_close = bool(very_close)
+        self.background_ref = background_ref
+        self.u_a_col = u_a_col
+        self.u_b_col = u_b_col
 
 class Orbit:
     def __init__(self, orb_id, user_a, user_b, user_a_msgs, user_b_msgs, last_var_assignment, G, M, I, user_a_last_response, user_b_last_response, configuration):
@@ -54,6 +61,11 @@ class SolarMember:
         self.joined = joined
         self.attributes = attributes
 
+class OrbitMessageAttributes:
+    def __init__(self, col, view_once, is_media):
+        self.col = col
+        self.view_once = bool(view_once)
+        self.is_media = bool(is_media)
 
 class OrbitMessage:
     def __init__(self, msg_id, orb_id, id, data, at, edited, attributes):
@@ -65,6 +77,11 @@ class OrbitMessage:
         self.edited = edited
         self.attributes = attributes
 
+class SolarMessageAttributes:
+    def __init__(self, col, view_once, is_media):
+        self.col = col
+        self.view_once = bool(view_once)
+        self.is_media = bool(is_media)
 
 class SolarMessage:
     def __init__(self, msg_id, sl_id, id, data, at, edited, attributes):
@@ -81,3 +98,6 @@ class ActiveWSConnection:
         self.ws = ws
         self.id = id
         self.void = void
+
+    def revoke(self):
+        self.void = 1

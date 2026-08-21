@@ -3,9 +3,11 @@ import datetime
 import json
 import itertools
 import objects
-import error_handler
+
 from error_handler import ErrorCodes
+
 from objects import Solar
+
 from dbhandler import sql_handler
 from dbhandler.user_control import UserControl
 
@@ -34,6 +36,23 @@ class SolarControl:
             return error_codes.DB_ERROR
         else:
             return sl_id
+
+    def get_solar_config(sl_id, id = None):
+        request = sql_handler.put_query("select * from Solars where sl_id = %s", (sl_id,))
+        if request == None:
+            return error_codes.DB_ERROR
+        elif request == []:
+            return error_codes.NON_EXISTENT_SOLAR
+        else:
+            solar = Solar(*request[0])
+        req = sql_handler.put_query("select * from solars where sl_id = %s", (sl_id,))
+        if req == []:
+            return error_codes.NON_EXISTENT_SOLAR
+        if id is not None:
+            conf = json.loads(req[0][3])
+            if id not in conf['members'].keys():
+                return error_codes.USER_NOT_SOLAR_MEMBER
+        return json.loads(solar.configuration)
 
     def delete_solar(sl_id):
         request = sql_handler.put_query("delete from Solars where sl_id is %s", (sl_id,))
@@ -264,3 +283,28 @@ class SolarControl:
                     res.add(j)
         return list(res)
 
+    def is_solar_member(sl_id, id):
+        req = sql_handler.put_query("select * from solars where sl_id = %s", (sl_id,))
+        if req == []:
+            return error_codes.NON_EXISTENT_SOLAR
+        conf = json.loads(req[0][3])
+        if id not in conf['members'].keys():
+            return False
+        return True
+
+    def set_user_col(sl_id, id, col):
+        req = sql_handler.put_query("select * from solars where sl_id = %s", (sl_id,))
+        if req == []:
+            return error_codes.NON_EXISTENT_SOLAR
+        conf = json.loads(req[0][3])
+
+        if id not in conf['members'].keys():
+            return error_codes.USER_NOT_SOLAR_MEMBER
+
+        conf['col_map'][id] = col
+
+        res = sql_handler.put_query("update solars set configuration = %s where sl_id = %s", (json.dumps(conf), sl_id))
+        if res == None:
+            return error_codes.DB_ERROR
+        return 0
+        
