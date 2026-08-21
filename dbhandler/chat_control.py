@@ -15,8 +15,8 @@ class ChatControl:
         res = OrbitControl.is_user_in_orbit(orb_id, user_id)
         if not res:
             return error_codes.UNAUTHORISED_REQUEST
-        query = "insert into OrbitMessages (msg_id, orb_id, id, data, attributes) values (%s, %s, %s, %s)"
-        params = (msg_id, orb_id, user_id, message)
+        query = "insert into OrbitMessages (msg_id, orb_id, id, data, attributes) values (%s, %s, %s, %s, %s)"
+        params = (msg_id, orb_id, user_id, message, attributes)
         result = sql_handler.put_query(query, params)
         if result is None:
             return error_codes.DB_ERROR

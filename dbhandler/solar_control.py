@@ -45,9 +45,7 @@ class SolarControl:
             return error_codes.NON_EXISTENT_SOLAR
         else:
             solar = Solar(*request[0])
-        req = sql_handler.put_query("select * from solars where sl_id = %s", (sl_id,))
-        if req == []:
-            return error_codes.NON_EXISTENT_SOLAR
+        req = request
         if id is not None:
             conf = json.loads(req[0][3])
             if id not in conf['members'].keys():

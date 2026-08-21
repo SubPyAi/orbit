@@ -31,10 +31,11 @@ class ErrorCodes:
 
 
 class OrbitException(Exception):
-    def __init__(self, error_code: int, cust_text: str = None):
+    def __init__(self, error_code: int, cust_text: str = None, ws: bool = False):
         super().__init__(cust_text)
         self.error_code = error_code
         self.cust_text = cust_text
+        self.ws = ws
 
     def response_body(self):
         messages = {

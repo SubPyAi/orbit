@@ -40,7 +40,7 @@ from dbhandler import VerificationControl
 from fastapi import Request
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
 
 # FASTAPI INITIALISATION
@@ -68,11 +68,16 @@ async def exception(request: Request, orbit_exception: OrbitException):
     return JSONResponse(status_code=200, content=orbit_exception.response_body())
 
 
-def raise_for_error(result):
+def raise_for_error(result, ws: bool = False):
     if isinstance(result, bool):
         return result
     if isinstance(result, int) and result in vars(error_codes).values():
-        raise OrbitException(result)
+        print("RESULT:", result)
+        if not ws:
+            raise OrbitException(error_code=result, ws=ws)
+        else:
+            orbit_exception = OrbitException(result)
+            return orbit_exception.response_body()
     return result
 
 #
@@ -331,9 +336,10 @@ def modify_solar(params: ModifySolarRequest):
 
 @app.post('/api/v1/orbits/create')
 def create_orbit(params: CreateOrbitRequest):
+    print("in")
     session = SessionControl.get_session(str(params.session))
     raise_for_error(session)
-    if session.id not in (params.user_a, params.user_b):
+    if session.id not in (str(params.user_a), str(params.user_b)):
         raise_for_error(error_codes.UNAUTHORISED_REQUEST)
     res = OrbitControl.create_orbit(str(params.user_a), str(params.user_b), params.configuration.model_dump_json())
     raise_for_error(res)
@@ -414,46 +420,74 @@ def modify_orbit(params: ModifyOrbitRequest):
 
 active_users = []
 
-@app.websocket('/ws')
+@app.websocket("/ws")
 async def ws_endpoint(websocket: WebSocket):
     await websocket.accept()
 
-    auth = await websocket.receive_json()
-
-    #res = SessionControl.validate_session(auth['id'])
-    #raise_for_error(res)
-    #
-    #if not res:
-    #    raise_for_error(error_codes.SESSION_EXPIRED)
-    #
-    
-    active_users.append(ActiveWSConnection(websocket, auth['id'], 0))
-    print(f"[ORBIT WS] New websocket establised from {auth['id']}")
-
-    await websocket.send_json({
-        "status": 0,
-    })
+    auth = None
 
     try:
+        # Authentication
+        #auth = await websocket.receive_json()
+
+        # Session validation here
+        # res = SessionControl.validate_session(auth["id"])
+        # raise_for_error(res)
+
+        active_users.append(
+            ActiveWSConnection(websocket, "bc6c570e-84fa-4cf3-9e04-6bab689b8704", 0)
+        )
+
+        print(
+            f"[ORBIT WS] New websocket established from uid"
+        )
+
+        auth = {"id": "bc6c570e-84fa-4cf3-9e04-6bab689b8704"}
+
+        await websocket.send_json({
+            "status": 0
+        })
+
+        # Active connection
         while True:
             data = await websocket.receive_json()
 
             try:
-                wsrecv = WSHandler(WSRecv(data['event'], data['data'], auth['id']))
-                res = wsrecv.process()
-                raise_for_error(res)
-                if res == 0:
-                    res_list, res_data = process_updations(wsrecv.update_event)
-            except:
-                raise_for_error(error_codes.BAD_WS_REQ)
+                wsrecv = WSHandler(
+                    WSRecv(
+                        event = data["event"],
+                        data = data["data"],
+                        id = auth["id"]
+                    )
+                )
 
-            for i in res_list:
-                await i.send_json(res_data)
+                res = wsrecv.process()
+                if raise_for_error(res, ws = True) != res:
+                    await websocket.send_json(raise_for_error(res, ws=True))
+                else:
+                    if res == 0:
+                        res_list, res_data = process_updations(
+                            wsrecv.update_event
+                        )
+                        for connection in res_list:
+                            await connection.send_json(res_data)
+
+            except OrbitException:
+                raise
+
+            except Exception as e:
+                print(e)
+                await websocket.send_json(raise_for_error(error_codes.BAD_WS_REQ, ws = True))
 
     except WebSocketDisconnect:
-        for i in active_users:
-            if i.id == auth['id']:
-                i.revoke()
+        print(
+            f"[ORBIT WS] {auth['id'] if auth else websocket} disconnected"
+        )
+
+        if auth is not None:
+            for connection in active_users:
+                if connection.id == auth["id"]:
+                    connection.revoke()
 
 def process_updations(update_event):
     event = update_event['event']

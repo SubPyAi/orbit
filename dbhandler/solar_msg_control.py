@@ -24,7 +24,8 @@ class SolarMsgControl:
             return error_codes.USER_NOT_SOLAR_MEMBER
 
     def update_message(id, msg_id, message):
-        if id != (sql_handler.put_query("select id from solarmessages where msg_id = %s", (msg_id))[0][0]):
+        print(sql_handler.put_query("select id from solarmessages where msg_id = %s", (msg_id,))[0][0])
+        if str(id) != (sql_handler.put_query("select id from solarmessages where msg_id = %s", (msg_id,))[0][0]):
             return error_codes.UNAUTHORISED_REQUEST
         query = "update SolarMessages set data = %s, edited = edited + 1 where msg_id = %s"
         params = (message, msg_id)
@@ -50,7 +51,7 @@ class SolarMsgControl:
             return error_codes.UNAUTHORISED_REQUEST
 
     def delete_message(msg_id, id):
-        req = sql_handler.put_query("select id from solarmessages where msg_id = %s", (msg_id))
+        req = sql_handler.put_query("select id from solarmessages where msg_id = %s", (msg_id,))
         if req == []:
             return error_codes.MESSAGE_DOES_NOT_EXIST
         if id != req[0][0]:
