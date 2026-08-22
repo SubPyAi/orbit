@@ -1,7 +1,7 @@
-import './App.css'
+import Landing from './pages/Landing/Landing'
 
 function App() {
-  return <h1>Hello</h1>
+  return <Landing />
 }
 
 export default App

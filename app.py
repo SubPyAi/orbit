@@ -1,4 +1,5 @@
 import json
+import dotenv
 import fastapi
 import secrets
 import api_model
@@ -48,6 +49,9 @@ app = fastapi.FastAPI()
 error_codes = ErrorCodes()
 ws_events = WSEvents()
 
+# DOTENV INITIALISATION
+dotenv.load_dotenv('.env')
+
 # ORBIT ERROR HANDLERS
 
 @app.exception_handler(RequestValidationError)
@@ -79,6 +83,16 @@ def raise_for_error(result, ws: bool = False):
             orbit_exception = OrbitException(result)
             return orbit_exception.response_body()
     return result
+
+#
+# Orbit Global API Version Call
+#
+
+@app.get('/api/version')
+def return_latest_api_version():
+    with open('api_ver', 'r') as f:
+        data = f.read()
+    return {"version": dotenv.get()}
 
 #
 # Orbit API v1

@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;400;500;600;700&display=swap');
+
+:root{
+    font-family: "Poppins", sans-serif;
+}
+
+.appgrid{
+    display: grid;
+    grid-template-rows: 64px 1fr 50px;
+    height: 100vh;
+    background-color: #FAF8F5;
+}
+
+.body{
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.body-explore{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
