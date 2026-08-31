@@ -22,7 +22,7 @@ class VerificationControl:
         v_id = str(uuid.uuid4())
         if type == 'email':
             token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
-            req_existing_token = sql_handler.put_query("select * from VerificationBlock where token_hash = '" + token_hash + "';")
+            req_existing_token = sql_handler.put_query("select * from VerificationBlock where token_hash = %s;", (token_hash, ))
             if req_existing_token != []:
                 return error_codes.VERIFICATION_TOKEN_DUPLICACY
             else:

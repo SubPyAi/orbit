@@ -80,14 +80,13 @@ class SolarConfiguration(BaseModel):
 
     @model_validator(mode="after")
     def validate_configuration(self):
-        print("In!")
+        self._col_map = {}
         for perm_list in self.roles.values():
             for perm in perm_list:
                 if perm not in ["send_message", "send_media", "manage_members", "manage_roles", "manage_members", "manage_config", "manage_messages"]:
                     raise ValueError("Invalid Configuration!")
     
         for role_members in self.role_map.values():
-            print("2")
             if len(role_members) != len(set(role_members)):
                 raise ValueError("Invalid Configuration!")
             if not set(role_members).issubset(set(self.members.keys())):
@@ -121,8 +120,8 @@ class SolarConfiguration(BaseModel):
             "allow_media": self.allow_media,
             "read_status_visibility": self.read_status_visibility,
             "online_status_visibility": self.online_status_visibility,
-            "background_ref": self.background_ref,
-            "pfp_ref": self.pfp_ref,
+            "background_ref": self.background_ref if self.background_ref == None else None,
+            "pfp_ref": self.pfp_ref if self.pfp_ref == None else None,
             "roles": self.roles,
             "members": members,
             "ban_list": self.ban_list,
@@ -207,3 +206,7 @@ class WSProcessUpdation(BaseModel):
     id: UUID
     event: str
     spec_id: UUID | None = "ALL"
+
+class GetSolarRequest(BaseModel):
+    id: UUID
+    sl_id: UUID

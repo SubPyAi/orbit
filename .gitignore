@@ -1,3 +1,4 @@
 .env
 misc.json
 misc.py
+__pycache__/

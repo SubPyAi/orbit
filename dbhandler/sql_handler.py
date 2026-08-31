@@ -61,8 +61,6 @@ def SQLHandler():
 
             finally:
                 query_queue.task_done()
-
-            print(f"[SQLHANDLER] Executed query: {query}")
         else:
             print("[SQLHANDLER] Received empty query, skipping.")
 
@@ -86,8 +84,6 @@ def put_query(query, params=None):
     except queue.Empty:
         print("[SQLHANDLER] Query timed out.")
         return None
-
-    print(f"[SQLHANDLER] Result: {result}")
 
     if isinstance(result, Exception):
         return None

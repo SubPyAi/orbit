@@ -30,7 +30,9 @@ class WSHandler:
         self.update_event = {}
 
     def process(self):
+
         try:
+
             if self.event == wsevents.WS_CLIENT_ADD_ORBIT_MESSAGE:
                 if int(self.data['attributes']['view_once']) not in (0, 1):
                     return validate_res(error_codes.INVALID_INPUT_FORMAT)
@@ -45,20 +47,21 @@ class WSHandler:
                 self.update_event['primary_spec_id'] = self.data['orb_id']
                 self.update_event['secondary_spec_id'] = None
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_EDIT_ORBIT_MESSAGE:
-                res = ChatControl.update_message(self.data['msg_id'], self.data['message'])
+                res = ChatControl.update_message(self.id, self.data['msg_id'], self.data['orb_id'], self.data['message'])
                 self.update_event['event'] = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
                 self.update_event['primary_spec_id'] = self.data['orb_id']
                 self.update_event['secondary_spec_id'] = self.data['msg_id']
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_DELETE_ORBIT_MESSAGE:
-                print("he")
-                res = ChatControl.delete_message(self.data['msg_id'])
+                res = ChatControl.delete_message(self.id, self.data['orb_id'], self.data['msg_id'])
                 self.update_event['event'] = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
                 self.update_event['primary_spec_id'] = self.data['orb_id']
                 self.update_event['secondary_spec_id'] = None
-                print("gtocha")
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_MODIFY_ORBIT_USER_COLOR:
                 pattern = r'^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$'
                 a = re.fullmatch(pattern, self.data['col']) is not None
@@ -69,6 +72,7 @@ class WSHandler:
                 self.update_event['primary_spec_id'] = self.data['orb_id']
                 self.update_event['secondary_spec_id'] = None
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_ADD_SOLAR_MESSAGE:
                 if int(self.data['attributes']['view_once']) not in (0, 1):
                     return validate_res(error_codes.INVALID_INPUT_FORMAT)
@@ -88,6 +92,7 @@ class WSHandler:
                 self.update_event['primary_spec_id'] = self.data['sl_id']
                 self.update_event['secondary_spec_id'] = None
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_EDIT_SOLAR_MESSAGE:
                 req = SolarControl.get_solar_config(self.data['sl_id'])
                 if validate_res(req):
@@ -99,6 +104,7 @@ class WSHandler:
                 self.update_event['primary_spec_id'] = self.data['sl_id']
                 self.update_event['secondary_spec_id'] = self.data['msg_id']
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_DELETE_SOLAR_MESSAGE:
                 req = SolarControl.get_solar_config(self.data['sl_id'])
                 if validate_res(req):
@@ -110,6 +116,7 @@ class WSHandler:
                 self.update_event['primary_spec_id'] = self.data['sl_id']
                 self.update_event['secondary_spec_id'] = None
                 return (validate_res(res) if validate_res(res) else 0)
+            
             elif self.event == wsevents.WS_CLIENT_MODIFY_SOLAR_USER_COLOR:
                 pattern = r'^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$'
                 a = re.fullmatch(pattern, self.data['col']) is not None
@@ -120,6 +127,7 @@ class WSHandler:
                 self.update_event['primary_spec_id'] = self.data['sl_id']
                 self.update_event['secondary_spec_id'] = None
                 return (validate_res(res) if validate_res(res) else 0)
+            
         except Exception as e:
             print(e)
             return validate_res(error_codes.INVALID_INPUT_FORMAT)

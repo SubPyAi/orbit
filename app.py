@@ -29,6 +29,7 @@ from api_model import CreateOrbitRequest
 from api_model import GetOrbitRequest
 from api_model import ModifyOrbitRequest
 from api_model import WSRecv
+from api_model import GetSolarRequest
 
 from dbhandler import UserControl
 from dbhandler import OrbitControl
@@ -90,9 +91,7 @@ def raise_for_error(result, ws: bool = False):
 
 @app.get('/api/version')
 def return_latest_api_version():
-    with open('api_ver', 'r') as f:
-        data = f.read()
-    return {"version": dotenv.get()}
+    return {"version": dotenv.get_key('.env', 'API_VERSION')}
 
 #
 # Orbit API v1
@@ -225,9 +224,11 @@ def create_solar(params: CreateSolarRequest):
     raise_for_error(res)
     return {"status": 0, "sl_id": res}
 
-@app.get('/api/v1/solars/get/{sl_id}')
-def get_solar(sl_id: str):
-    solar = SolarControl.get_solar(sl_id)
+@app.get('/api/v1/solars/get')
+def get_solar(params: GetSolarRequest):
+    if not SolarControl.is_solar_member(str(params.sl_id), str(params.id)):
+        raise_for_error(error_codes.UNAUTHORISED_REQUEST)
+    solar = SolarControl.get_solar(str(params.sl_id))
     raise_for_error(solar)
     return {"status": 0, "sl_id": solar.sl_id, "id": solar.id, "name": solar.name, "configuration": solar.configuration, "created": solar.created}
 
@@ -331,10 +332,7 @@ def modify_solar(params: ModifySolarRequest):
         if action != 'set':
             raise_for_error(error_codes.INVALID_INPUT_FORMAT)
 
-        if not isinstance(value, dict):
-            raise_for_error(error_codes.INVALID_INPUT_FORMAT)
-
-        res = SolarControl.update_solar(sl_id, value[0]['configuration'].json_text)
+        res = SolarControl.update_solar(sl_id, value[0].configuration.json_text)
         raise_for_error(res)
         return {"status": 0}
     elif key == "col":
@@ -412,6 +410,8 @@ def get_user_orbits(params: Request):
 def modify_orbit(params: ModifyOrbitRequest):
     session = SessionControl.get_session(str(params.session))
     raise_for_error(session)
+    if not OrbitControl.is_user_in_orbit(params.orb_id, session.id):
+        raise_for_error(error_codes.UNAUTHORISED_REQUEST)
     orbit = OrbitControl.get_orbit(params.orb_id)
     raise_for_error(orbit)
     if params.col:

@@ -23,9 +23,12 @@ class ChatControl:
         else:
             return 0
 
-    def update_message(msg_id, message):
-        query = "update OrbitMessages set data = %s, edited = edited + 1 where msg_id = %s"
-        params = (message, msg_id)
+    def update_message(user_id, msg_id, orb_id, message):
+        req = OrbitControl.is_user_in_orbit(orb_id, user_id)
+        if req == False:
+            return error_codes.UNAUTHORISED_REQUEST
+        query = "update OrbitMessages set data = %s, edited = edited + 1 where msg_id = %s and orb_id = %s"
+        params = (message, msg_id, orb_id)
         result = sql_handler.put_query(query, params)
         if result is None:
             return error_codes.DB_ERROR
@@ -44,9 +47,12 @@ class ChatControl:
                 list_messages.append(OrbitMessage(*message_data))
             return list_messages
 
-    def delete_message(msg_id):
-        query = "delete from OrbitMessages where msg_id = %s"
-        params = (msg_id,)
+    def delete_message(user_id, orb_id, msg_id):
+        req = OrbitControl.is_user_in_orbit(orb_id, user_id)
+        if req == False:
+            return error_codes.UNAUTHORISED_REQUEST
+        query = "delete from OrbitMessages where msg_id = %s and orb_id = %s"
+        params = (msg_id, orb_id)
         result = sql_handler.put_query(query, params)
         if result is None:
             return error_codes.DB_ERROR

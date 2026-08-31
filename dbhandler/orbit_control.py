@@ -30,6 +30,8 @@ class OrbitControl:
         if result is None:
             return error_codes.DB_ERROR
         else:
+            if result == []:
+                return error_codes.ORBIT_DOES_NOT_EXIST
             return Orbit(*result[0])
 
     def get_user_orbits(id):

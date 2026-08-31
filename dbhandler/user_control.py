@@ -82,6 +82,8 @@ class UserControl:
         if result is None:
             return error_codes.DB_ERROR
         else:
+            if result == []:
+                return error_codes.USER_NOT_FOUND
             return result[0][0]
 
     def validate_user(username, password):

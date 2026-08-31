@@ -1,5 +1,7 @@
 -- Orbit v1 MySQL schema
 
+DROP DATABASE IF EXISTS Orbit;
+
 CREATE DATABASE IF NOT EXISTS Orbit CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE Orbit;
 
