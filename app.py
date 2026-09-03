@@ -441,22 +441,17 @@ async def ws_endpoint(websocket: WebSocket):
     auth = None
 
     try:
-        # Authentication
-        #auth = await websocket.receive_json()
-
-        # Session validation here
-        # res = SessionControl.validate_session(auth["id"])
-        # raise_for_error(res)
+        auth = await websocket.receive_json()
+        res = SessionControl.validate_session(auth["id"])
+        raise_for_error(res)
 
         active_users.append(
-            ActiveWSConnection(websocket, "bc6c570e-84fa-4cf3-9e04-6bab689b8704", 0)
+            ActiveWSConnection(websocket, auth["id"], 0)
         )
 
         print(
-            f"[ORBIT WS] New websocket established from uid"
+            f"[ORBIT WS] New websocket established from uid`{auth['id'] if auth else websocket}`"
         )
-
-        auth = {"id": "bc6c570e-84fa-4cf3-9e04-6bab689b8704"}
 
         await websocket.send_json({
             "status": 0
@@ -544,5 +539,5 @@ def process_updations(update_event):
 
 @app.get('/')
 def root():
-    return {"message": "fastapi server is live!"}
+    return {"status": "API active!"}
 
