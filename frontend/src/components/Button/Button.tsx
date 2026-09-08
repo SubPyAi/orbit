@@ -23,7 +23,7 @@ function Button(
     height: string,
     width: string,
     borderRadius: string,
-    border?: string
+    border?: string,
   }
 ) {
   return (
@@ -39,7 +39,8 @@ function Button(
             "--height": height,
             "--width": width,
             "--border-radius": borderRadius,
-            "--border": border
+            "--border": border,
+            "--hover-glow-col": hoverGlowCol
           } as React.CSSProperties
         }
       >

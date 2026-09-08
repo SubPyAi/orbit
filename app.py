@@ -438,12 +438,17 @@ active_users = []
 async def ws_endpoint(websocket: WebSocket):
     await websocket.accept()
 
-    auth = None
+    auth = {}
 
     try:
         auth = await websocket.receive_json()
         res = SessionControl.validate_session(auth["id"])
         raise_for_error(res)
+
+        if not res:
+            await websocket.send_json(raise_for_error(error_codes.UNAUTHORISED_REQUEST, ws = True))
+            await websocket.close()
+            return
 
         active_users.append(
             ActiveWSConnection(websocket, auth["id"], 0)

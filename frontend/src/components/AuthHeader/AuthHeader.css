@@ -1,0 +1,19 @@
+.auth-header-wrapper{
+    background-color: transparent;
+    border: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.auth-header-wrapper-brand-name{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-header-wrapper-brand-name p{
+    font-size: 30px;
+    color: white;
+}

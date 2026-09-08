@@ -21,13 +21,10 @@ class SolarControl:
             return error_codes.USER_NOT_FOUND
         print(conf)
         cfg = json.loads(conf)
-        msgdata = {"member_data": {}, "last_var_assignment": "", "member_variables": {}}
+        msgdata = {"member_data": {}, "last_var_assignment": ""}
         for i in cfg['members']:
             msgdata["member_data"][i] = 0
         msgdata["last_var_assignment"] = datetime.date.today().strftime("%d-%m-%Y")
-        pairs = itertools.combinations(cfg['members'], 2)
-        for i in pairs:
-            msgdata['member_variables'][i[0] + ":" + i[1]] = 0
         query = "insert into Solars (sl_id, name, id, configuration, msgdata) values (%s, %s, %s, %s, %s)"
         params = (sl_id, name, user_id, conf, json.dumps(msgdata))
         print(query % params)
@@ -179,8 +176,6 @@ class SolarControl:
         config['members'][id] = uname
 
         msgdata = json.loads(request1[0][1])
-        for i in mem_list:
-            msgdata['member_variables'][id + ":" + i] = 0
 
         msgdata['member_data'][id] = 0
 
@@ -205,15 +200,6 @@ class SolarControl:
         msgdata = json.loads(request1[0][1])
 
         del msgdata['member_data'][id]
-
-        del_list = []
-
-        for i in range(len(msgdata['member_variables'].keys())):
-            if id in list(msgdata['member_variables'].keys())[i]:
-                del_list.append(list(msgdata['member_variables'].keys())[i])
-
-        for i in del_list:
-            del msgdata['member_variables'][i]
                 
 
         for i in config['roles'].keys():
