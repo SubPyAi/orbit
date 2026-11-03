@@ -1,8 +1,7 @@
-import Landing from './pages/Landing/Landing'
-import Auth from './pages/Auth/Auth'
+import Test from "./pages/Test/Test.tsx"
 
 function App() {
-  return <Auth />
+  return <Test />
 }
 
 export default App

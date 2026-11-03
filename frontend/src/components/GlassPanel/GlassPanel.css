@@ -1,0 +1,29 @@
+.orbit-glass-panel {
+    border: 1px solid var(--orbit-border);
+    border-radius: var(--orbit-radius-xl);
+
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.18);
+
+    transition:
+        border-color var(--orbit-duration-normal),
+        background var(--orbit-duration-normal);
+}
+
+.orbit-glass-panel--subtle {
+    background: rgba(16, 18, 25, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.orbit-glass-panel--normal {
+    background: rgba(25, 28, 37, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.orbit-glass-panel--strong {
+    background: rgba(25, 28, 37, 0.90);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+}

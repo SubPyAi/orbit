@@ -14,4 +14,32 @@ body,
 
 :root {
     font-family: 'Poppins', sans-serif;
+    --orbvar-color-void: #08090D;
+    --orbvar-color-surface: #101219;
+    --orbvar-color-elevated: #191C25;
+    --orbvar-color-border: #292D38;
+    --orbvar-color-primary: #F4F5F8;
+    --orbvar-color-secondary: #6E7483;
+    --orbvar-color-white: #FFFFFF;
+    --orbvar-color-accent: #A5B4FC;
+    --orbvar-fontsize-xs: 0.75rem;
+    --orbvar-fontsize-sm: 0.875rem;
+    --orbvar-fontsize-md: 1rem;
+    --orbvar-fontsize-lg: 1.25rem; 
+    --orbvar-fontsize-xl: 1.5rem;
+    --orbvar-fontsize-2xl: 2rem;
+    --orbvar-fontsize-3xl: 3rem;
+    --orbvar-radius-sm: 4px;
+    --orbvar-radius-md: 0.625rem;
+    --orbvar-radius-lg: 1rem;
+    --orbvar-radius-xl: 1.375rem;
+    --orbvar-radius-round: 50%
+    --orbvar-space-1: 4px;
+    --orbvar-space-2: 8px;
+    --orbvar-space-3: 12px;
+    --orbvar-space-4: 16px;
+    --orbvar-space-5: 24px;
+    --orbvar-space-6: 32px;
+    --orbvar-space-7: 48px;
+    --orbvar-space-8: 64px;
 }

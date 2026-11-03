@@ -1,29 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+.orbit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--orbit-space-2);
 
-.button-wrapper-button:hover {
-  border: var(--border);
-  background-color: var(--hover-bg);
-  color: var(--col, #00F);
-  transition: 0.2s;
-  border-radius: var(--border-radius);
-  box-shadow: 0px 0px 10px var(--hover-glow-col);
+    border: 1px solid transparent;
+    border-radius: var(--orbit-radius-md);
+
+    font-weight: 600;
+    cursor: pointer;
+
+    transition:
+        background var(--orbit-duration-normal) var(--orbit-ease-standard),
+        border-color var(--orbit-duration-normal) var(--orbit-ease-standard),
+        color var(--orbit-duration-normal) var(--orbit-ease-standard),
+        transform var(--orbit-duration-fast) var(--orbit-ease-standard);
 }
 
-.button-wrapper-button{
-  border: var(--border);
-  background-color: var(--bg-col, #FFF);
-  color: var(--col, #00F);
-  transition: 0.2s;
-  width: var(--width);
-  height: var(--height);
-  border-radius: var(--border-radius);
-  font-family: 'Poppins', sans-serif;
-  letter-spacing: 0.05em;
+.orbit-button:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
-.button-wrapper{
-  height: var(--height);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.orbit-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Variants */
+
+.orbit-button--primary {
+    background: var(--orbit-accent);
+    color: var(--orbit-bg);
+}
+
+.orbit-button--primary:hover:not(:disabled) {
+    background: var(--orbit-accent-hover);
+}
+
+.orbit-button--secondary {
+    background: var(--orbit-surface-3);
+    color: var(--orbit-text-primary);
+}
+
+.orbit-button--secondary:hover:not(:disabled) {
+    background: #303645;
+}
+
+.orbit-button--outline {
+    background: transparent;
+    border-color: var(--orbit-border);
+    color: var(--orbit-text-primary);
+}
+
+.orbit-button--outline:hover:not(:disabled) {
+    background: var(--orbit-surface-1);
+    border-color: var(--orbit-border-hover);
+}
+
+.orbit-button--ghost {
+    background: transparent;
+    color: var(--orbit-text-secondary);
+}
+
+.orbit-button--ghost:hover:not(:disabled) {
+    background: var(--orbit-accent-soft);
+    color: var(--orbit-text-primary);
+}
+
+/* Sizes */
+
+.orbit-button--sm {
+    height: 34px;
+    padding: 0 12px;
+    font-size: var(--orbit-text-sm);
+}
+
+.orbit-button--md {
+    height: var(--orbit-button-height);
+    padding: 0 18px;
+    font-size: var(--orbit-text-md);
+}
+
+.orbit-button--lg {
+    height: 52px;
+    padding: 0 24px;
+    font-size: var(--orbit-text-lg);
+}
+
+.orbit-button--full {
+    width: 100%;
 }

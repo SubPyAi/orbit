@@ -1,0 +1,39 @@
+.design-preview {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 30%,
+            rgba(165, 180, 252, 0.10),
+            transparent 65%
+        ),
+        var(--orbit-bg);
+}
+
+.design-preview .orbit-glass-panel {
+    width: 100%;
+    max-width: 420px;
+
+    padding: 32px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.design-preview h1 {
+    margin: 0;
+    font-family: var(--orbit-font-display);
+    font-size: var(--orbit-text-xl);
+}
+
+.design-preview p {
+    margin: 0;
+    color: var(--orbit-text-secondary);
+}

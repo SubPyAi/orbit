@@ -1,0 +1,68 @@
+.orbit-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--orbit-space-2);
+    width: 100%;
+}
+
+.orbit-input-label {
+    color: var(--orbit-text-secondary);
+    font-size: var(--orbit-text-sm);
+    font-weight: 500;
+}
+
+.orbit-input {
+    width: 100%;
+    height: var(--orbit-input-height);
+
+    padding: 0 14px;
+
+    background: var(--orbit-surface-1);
+    border: 1px solid var(--orbit-border);
+    border-radius: var(--orbit-radius-md);
+
+    color: var(--orbit-text-primary);
+    font-size: var(--orbit-text-md);
+
+    outline: none;
+
+    transition:
+        border-color var(--orbit-duration-normal),
+        background var(--orbit-duration-normal);
+}
+
+.orbit-input::placeholder {
+    color: var(--orbit-text-muted);
+}
+
+.orbit-input:hover:not(:disabled) {
+    border-color: var(--orbit-border-hover);
+}
+
+.orbit-input:focus {
+    border-color: var(--orbit-accent);
+    background: var(--orbit-surface-2);
+}
+
+.orbit-input:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.orbit-input--error {
+    border-color: var(--orbit-danger);
+}
+
+.orbit-input--error:focus {
+    border-color: var(--orbit-danger);
+}
+
+.orbit-input-error {
+    color: var(--orbit-danger);
+    font-size: var(--orbit-text-xs);
+}
+
+.orbit-input-hint {
+    color: var(--orbit-text-muted);
+    font-size: var(--orbit-text-xs);
+}
