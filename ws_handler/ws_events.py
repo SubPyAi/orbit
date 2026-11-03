@@ -14,3 +14,5 @@ class WSEvents:
         self.WS_SERVER_UPDATE_SOLAR_MESSAGE = "update_solar_message"
         self.WS_SERVER_UPDATE_ORBIT_LIST = "update_orbit_list"
         self.WS_SERVER_UPDATE_SOLAR_LIST = "update_solar_list"
+        self.WS_PING = "ping"
+        self.WS_PONG = "pong"

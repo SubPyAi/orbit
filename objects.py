@@ -101,3 +101,10 @@ class ActiveWSConnection:
 
     def revoke(self):
         self.void = 1
+
+class WSUpdateEvent:
+    def __init__(self, event, primary_spec_id, secondary_spec_id, data):
+        self.event = event
+        self.primary_spec_id = primary_spec_id
+        self.secondary_spec_id = secondary_spec_id
+        self.data = data

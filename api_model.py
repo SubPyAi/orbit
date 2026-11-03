@@ -49,6 +49,7 @@ class GetUserRequest(BaseModel):
         if method_uid != method_uname:
             return self
         else:
+            print("mew")
             raise ValueError("Invalid request")
 
 
@@ -173,8 +174,15 @@ class ModifyOrbitRequest(BaseModel):
 
 class WSRecv(BaseModel):
     event: str
-    data: dict
+    data: dict | None = None
     id: UUID
+
+    @model_validator(mode="after")
+    def validate_ws_recv(self):
+        if self.event != "ping" and self.data is None:
+            raise ValueError("Invalid request")
+        else:
+            return self
 
 class OrbitMessageAttributes(BaseModel):
     col: str = Field(pattern="^#([A-Fa-f0-9]{8})$")

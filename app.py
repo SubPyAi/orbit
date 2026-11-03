@@ -173,12 +173,14 @@ def create_new_user(params: CreateUserRequest):
 def get_user(params: GetUserRequest):
     uname = params.uname
     uid = params.uid
-    if uname:
-        user =  UserControl.get_user(UserControl.get_uid(uname))
+    if uname is not None:
+        user = UserControl.get_user(UserControl.get_uid(uname))
+        print("she")
         raise_for_error(user)
         return {"status": 0, "username": user.username, "DoB": user.DoB, "created": user.created, "pfp_ref": user.pfp_ref}
     else:
-        user =  UserControl.get_user(uid)
+        user = UserControl.get_user(str(uid))
+        print("he")
         raise_for_error(user)
         return {"status": 0, "username": user.username, "DoB": user.DoB, "created": user.created, "pfp_ref": user.pfp_ref}
 
@@ -432,50 +434,53 @@ def modify_orbit(params: ModifyOrbitRequest):
 # WEBSOCKET IMPLEMENTATION
 #
 
-active_users = []
+global active_ws
+active_ws = []
 
 @app.websocket("/ws")
 async def ws_endpoint(websocket: WebSocket):
+    session = websocket.cookies.get('session')
+
+    if session is None:
+        await websocket.send_json(raise_for_error(error_codes.UNAUTHORISED_REQUEST, ws = True))
+        await websocket.close()
+        return
+
+    if not SessionControl.validate_session(session):
+        await websocket.send_json(raise_for_error(error_codes.UNAUTHORISED_REQUEST, ws = True))
+        await websocket.close()
+        return
+
     await websocket.accept()
 
-    auth = {}
+    active_ws.append(
+        ActiveWSConnection(websocket, session, 0)
+    )
+
+    print(f"[ORBIT WS] New websocket established from uid`{str(SessionControl.get_session(session).id)}`")
+
+    await websocket.send_json({"status": 0})
 
     try:
-        auth = await websocket.receive_json()
-        res = SessionControl.validate_session(auth["id"])
-        raise_for_error(res)
-
-        if not res:
-            await websocket.send_json(raise_for_error(error_codes.UNAUTHORISED_REQUEST, ws = True))
-            await websocket.close()
-            return
-
-        active_users.append(
-            ActiveWSConnection(websocket, auth["id"], 0)
-        )
-
-        print(
-            f"[ORBIT WS] New websocket established from uid`{auth['id'] if auth else websocket}`"
-        )
-
-        await websocket.send_json({
-            "status": 0
-        })
-
         # Active connection
         while True:
             data = await websocket.receive_json()
 
             try:
+                print("0")
+                print(session)
+                print(data)
                 wsrecv = WSHandler(
                     WSRecv(
                         event = data["event"],
-                        data = data["data"],
-                        id = auth["id"]
+                        data = (data["data"] if data["event"] != "ping" else None),
+                        id = session
                     )
                 )
+                print("1")
 
                 res = wsrecv.process()
+                print(res)
                 if raise_for_error(res, ws = True) != res:
                     await websocket.send_json(raise_for_error(res, ws=True))
                 else:
@@ -495,47 +500,51 @@ async def ws_endpoint(websocket: WebSocket):
 
     except WebSocketDisconnect:
         print(
-            f"[ORBIT WS] {auth['id'] if auth else websocket} disconnected"
+            f"[ORBIT WS] {str(UserControl.get_uid_from_session(session))} disconnected"
         )
 
-        if auth is not None:
-            for connection in active_users:
-                if connection.id == auth["id"]:
+        if session is not None:
+            for connection in active_ws:
+                if connection.id == session:
                     connection.revoke()
 
 def process_updations(update_event):
-    event = update_event['event']
-    primary_spec_id = update_event['primary_spec_id']
-    secondary_spec_id = update_event['secondary_spec_id']
+    event = update_event.event
+    primary_spec_id = update_event.primary_spec_id
+    secondary_spec_id = update_event.secondary_spec_id
+    data = update_event.data
     res_list = []
-    res_data = {
-        "primary_spec_id": primary_spec_id,
-        "secondary_spec_id": secondary_spec_id
-    }
+    res_data = update_event.__dict__.copy()
+    print(res_data)
     if "orbit_message" in event:
         orbit = OrbitControl.get_orbit(primary_spec_id)
-        for i in active_users:
+        for i in active_ws:
             if not i.void and i.id in (orbit.user_a, orbit.user_b):
                 res_list.append(i.ws)
         res_data['event'] = ws_events.WS_SERVER_UPDATE_ORBIT_MESSAGE
     elif "solar_message" in event:
         solar = SolarControl.get_solar_config(primary_spec_id)
-        for i in active_users:
+        for i in active_ws:
             if not i.void and i.id in solar['members'].keys():
                 res_list.append(i.ws)
         res_data['event'] = ws_events.WS_SERVER_UPDATE_SOLAR_MESSAGE
     elif "orbit_user_color" in event:
         orbit = OrbitControl.get_orbit(primary_spec_id)
-        for i in active_users:
+        for i in active_ws:
             if not i.void and i.id in (orbit.user_a, orbit.user_b):
                 res_list.append(i.ws)
         res_data['event'] = ws_events.WS_SERVER_UPDATE_ORBIT
     elif "solar_user_color" in event:
         solar = SolarControl.get_solar_config(primary_spec_id)
-        for i in active_users:
+        for i in active_ws:
             if not i.void and i.id in solar['members'].keys():
                 res_list.append(i.ws)
         res_data['event'] = ws_events.WS_SERVER_UPDATE_SOLAR
+    elif "pong" in event:
+        for i in active_ws:
+            if not i.void and i.id == primary_spec_id:
+                res_list.append(i.ws)
+        res_data['event'] = ws_events.WS_PONG
     else:
         pass
 
@@ -544,5 +553,5 @@ def process_updations(update_event):
 
 @app.get('/')
 def root():
-    return {"status": "API active!"}
+    return {"status": "0"}
 

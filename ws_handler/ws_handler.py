@@ -13,6 +13,8 @@ from dbhandler.orbit_control import OrbitControl
 from dbhandler.solar_control import SolarControl
 from dbhandler.solar_msg_control import SolarMsgControl
 
+from objects import WSUpdateEvent
+
 wsevents = WSEvents()
 error_codes = ErrorCodes()
 
@@ -27,7 +29,7 @@ class WSHandler:
         self.event = content.event
         self.data = content.data
         self.id = str(content.id)
-        self.update_event = {}
+        self.update_event = WSUpdateEvent(event=None, primary_spec_id=None, secondary_spec_id=None, data=None)
 
     def process(self):
 
@@ -43,23 +45,26 @@ class WSHandler:
                 if not a:
                     return validate_res(error_codes.INVALID_INPUT_FORMAT)
                 res = ChatControl.add_message(self.data['orb_id'], self.id, self.data['message'], json.dumps(self.data['attributes']))
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
-                self.update_event['primary_spec_id'] = self.data['orb_id']
-                self.update_event['secondary_spec_id'] = None
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
+                self.update_event.primary_spec_id = self.data['orb_id']
+                self.update_event.secondary_spec_id = None
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_EDIT_ORBIT_MESSAGE:
                 res = ChatControl.update_message(self.id, self.data['msg_id'], self.data['orb_id'], self.data['message'])
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
-                self.update_event['primary_spec_id'] = self.data['orb_id']
-                self.update_event['secondary_spec_id'] = self.data['msg_id']
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
+                self.update_event.primary_spec_id = self.data['orb_id']
+                self.update_event.secondary_spec_id = self.data['msg_id']
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_DELETE_ORBIT_MESSAGE:
                 res = ChatControl.delete_message(self.id, self.data['orb_id'], self.data['msg_id'])
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
-                self.update_event['primary_spec_id'] = self.data['orb_id']
-                self.update_event['secondary_spec_id'] = None
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_ORBIT_MESSAGE
+                self.update_event.primary_spec_id = self.data['orb_id']
+                self.update_event.secondary_spec_id = None
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_MODIFY_ORBIT_USER_COLOR:
@@ -71,6 +76,7 @@ class WSHandler:
                 self.update_event['event'] = wsevents.WS_SERVER_UPDATE_ORBIT
                 self.update_event['primary_spec_id'] = self.data['orb_id']
                 self.update_event['secondary_spec_id'] = None
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_ADD_SOLAR_MESSAGE:
@@ -88,9 +94,10 @@ class WSHandler:
                 if not (req['allow_media']) and bool(self.data['attributes']['is_media']):
                     return validate_res(error_codes.MEDIA_NOT_ALLOWED_IN_SOLAR)
                 res = SolarMsgControl.add_message(self.data['sl_id'], self.id, self.data['message'], json.dumps(self.data['attributes']))
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_SOLAR_MESSAGE
-                self.update_event['primary_spec_id'] = self.data['sl_id']
-                self.update_event['secondary_spec_id'] = None
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_SOLAR_MESSAGE
+                self.update_event.primary_spec_id = self.data['sl_id']
+                self.update_event.secondary_spec_id = None
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_EDIT_SOLAR_MESSAGE:
@@ -100,9 +107,10 @@ class WSHandler:
                 if req['allow_edit'] == 0:
                     return validate_res(error_codes.DELETION_NOT_ALLOWED_IN_SOLAR)
                 res = SolarMsgControl.update_message(self.id, self.data['msg_id'], self.data['message'])
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_SOLAR_MESSAGE
-                self.update_event['primary_spec_id'] = self.data['sl_id']
-                self.update_event['secondary_spec_id'] = self.data['msg_id']
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_SOLAR_MESSAGE
+                self.update_event.primary_spec_id = self.data['sl_id']
+                self.update_event.secondary_spec_id = self.data['msg_id']
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_DELETE_SOLAR_MESSAGE:
@@ -112,9 +120,10 @@ class WSHandler:
                 if req['allow_delete'] == 0:
                     return validate_res(error_codes.DELETION_NOT_ALLOWED_IN_SOLAR)
                 res = SolarMsgControl.delete_message(self.data['msg_id'], self.id)
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_SOLAR_MESSAGE
-                self.update_event['primary_spec_id'] = self.data['sl_id']
-                self.update_event['secondary_spec_id'] = None
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_SOLAR_MESSAGE
+                self.update_event.primary_spec_id = self.data['sl_id']
+                self.update_event.secondary_spec_id = None
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
             
             elif self.event == wsevents.WS_CLIENT_MODIFY_SOLAR_USER_COLOR:
@@ -123,10 +132,20 @@ class WSHandler:
                 if not a:
                     return validate_res(error_codes.INVALID_INPUT_FORMAT)
                 res = SolarControl.set_user_col(self.data['sl_id'], self.id, self.data['col'])
-                self.update_event['event'] = wsevents.WS_SERVER_UPDATE_SOLAR
-                self.update_event['primary_spec_id'] = self.data['sl_id']
-                self.update_event['secondary_spec_id'] = None
+                self.update_event.event = wsevents.WS_SERVER_UPDATE_SOLAR
+                self.update_event.primary_spec_id = self.data['sl_id']
+                self.update_event.secondary_spec_id = None
+                self.update_event.data = self.data
                 return (validate_res(res) if validate_res(res) else 0)
+
+            elif self.event == wsevents.WS_PING:
+                print("ping")
+                self.update_event.event = wsevents.WS_PONG
+                self.update_event.primary_spec_id = self.id
+                self.update_event.secondary_spec_id = None
+                self.data = "pong"
+                self.update_event.data = self.data
+                return 0
             
         except Exception as e:
             print(e)
