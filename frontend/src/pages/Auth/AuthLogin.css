@@ -1,0 +1,58 @@
+.auth-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.auth-glass-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75%;
+    width: 35%;
+    padding: 2rem;
+    letter-spacing: 0.05em;
+}
+
+.auth-title {
+    font-size: var(--orbvar-fontsize-3xl);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--orbvar-color-primary);
+}
+
+.auth-subtitle {
+    font-size: var(--orbvar-fontsize-lg);
+    font-weight: 500;
+    margin-bottom: 2rem;
+    color: var(--orbvar-color-secondary);
+}
+
+.auth-text-field {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.auth-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.auth-forgot-password {
+    font-size: var(--orbvar-fontsize-sm);
+    color: var(--orbvar-color-accent);
+    text-decoration: none;
+    text-align: center;
+}
+
+.auth-forgot-password-button {
+    letter-spacing: 0.1em;
+}

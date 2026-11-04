@@ -1,6 +1,6 @@
-import Button from '../../components/Button/Button.tsx';
-import Input from '../../components/TextField/TextField.tsx';
-import GlassPanel from '../../components/GlassPanel/GlassPanel.tsx';
+import Button from '../../GlobalComponents/Button/Button.tsx';
+import Input from '../../GlobalComponents/TextField/TextField.tsx';
+import GlassPanel from '../../GlobalComponents/GlassPanel/GlassPanel.tsx';
 
 function DesignPreview() {
     return (

@@ -1,6 +1,6 @@
 const OrbitLogo = ({ 
   size = 20, 
-  color = '#3D8A5A', 
+  color = '#A5B4FC', 
   className = '', 
   style = {},
   ...props 

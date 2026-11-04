@@ -1,0 +1,10 @@
+.auth-page {
+    background-color: black;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100vh;
+    min-height: 100vh;
+    background-color: var(--orbvar-color-void);
+    color: #333;
+}

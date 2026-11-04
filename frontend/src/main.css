@@ -1,19 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-html,
-body,
 #root {
     margin: 0;
-    width: 100%;
-    min-height: 100%;
+    width: 100vw;
+    min-height: 100vh;
 }
 
-*{
+* {
     box-sizing: border-box;
 }
 
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
 :root {
-    font-family: 'Poppins', sans-serif;
     --orbvar-color-void: #08090D;
     --orbvar-color-surface: #101219;
     --orbvar-color-elevated: #191C25;

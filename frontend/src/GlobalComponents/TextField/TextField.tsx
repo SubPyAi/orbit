@@ -9,7 +9,7 @@ interface InputProps
     hint?: string;
 }
 
-function Input({
+function TextField({
     label,
     error,
     hint,
@@ -64,4 +64,4 @@ function Input({
     );
 }
 
-export default Input;
+export default TextField;

@@ -1,0 +1,15 @@
+{
+	"mcpServers": {
+		"api-testing": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@cocaxcode/api-testing-mcp@latest"
+			],
+			"tools": [
+				"*"
+			]
+		}
+	}
+}

@@ -1,0 +1,92 @@
+.orbit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--orbvar-space-2);
+
+    border: 1px solid transparent;
+    border-radius: var(--orbvar-radius-md);
+
+    font-weight: 600;
+    cursor: pointer;
+
+    transition:
+        background 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease,
+        transform 120ms ease;
+}
+
+.orbit-button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.orbit-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Variants */
+
+.orbit-button--primary {
+    background: var(--orbvar-color-accent);
+    color: var(--orbvar-color-void);
+}
+
+.orbit-button--primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--orbvar-color-accent) 85%, var(--orbvar-color-void));
+}
+
+.orbit-button--secondary {
+    background: var(--orbvar-color-elevated);
+    color: var(--orbvar-color-primary);
+}
+
+.orbit-button--secondary:hover:not(:disabled) {
+    background: var(--orbvar-color-border);
+}
+
+.orbit-button--outline {
+    background: transparent;
+    border-color: var(--orbvar-color-border);
+    color: var(--orbvar-color-primary);
+}
+
+.orbit-button--outline:hover:not(:disabled) {
+    background: var(--orbvar-color-surface);
+    border-color: var(--orbvar-color-border);
+}
+
+.orbit-button--ghost {
+    background: transparent;
+    color: var(--orbvar-color-secondary);
+}
+
+.orbit-button--ghost:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--orbvar-color-accent) 12%, transparent);
+    color: var(--orbvar-color-primary);
+}
+
+/* Sizes */
+
+.orbit-button--sm {
+    height: 34px;
+    padding: 0 12px;
+    font-size: var(--orbvar-fontsize-sm);
+}
+
+.orbit-button--md {
+    height: 44px;
+    padding: 0 18px;
+    font-size: var(--orbvar-fontsize-md);
+}
+
+.orbit-button--lg {
+    height: 52px;
+    padding: 0 24px;
+    font-size: var(--orbvar-fontsize-lg);
+}
+
+.orbit-button--full {
+    width: 100%;
+}

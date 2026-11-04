@@ -1,0 +1,25 @@
+.nav-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--orbvar-color-elevated);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+}
+
+.nav-visible {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.nav-logo-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--orbvar-color-primary);
+    margin: 0;
+    padding: 0;
+    letter-spacing: 0.08em;
+}
