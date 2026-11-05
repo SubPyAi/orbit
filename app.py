@@ -44,11 +44,22 @@ from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
 # FASTAPI INITIALISATION
 app = fastapi.FastAPI()
 error_codes = ErrorCodes()
 ws_events = WSEvents()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # DOTENV INITIALISATION
 dotenv.load_dotenv('.env')
@@ -157,6 +168,7 @@ def get_current_user(params: Request):
 
 @app.post('/api/v1/signup/create')
 def create_new_user(params: CreateUserRequest):
+    print(params)
     username = params.username
     password = params.password
     email = params.email

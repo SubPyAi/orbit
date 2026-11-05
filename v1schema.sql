@@ -13,8 +13,7 @@ CREATE TABLE Users (
     phone CHAR(10),
     DoB DATE,
     created TIMESTAMP,
-    pfp_ref varchar(128) DEFAULT "None",
-    online BOOL DEFAULT FALSE
+    pfp_ref varchar(128) DEFAULT "None"
 );
 
 CREATE TABLE Solars (

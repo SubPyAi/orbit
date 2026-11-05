@@ -30,12 +30,20 @@ class GetCurrentUserRequest(BaseModel):
     session: UUID | None = None
 
 class CreateUserRequest(BaseModel):
-    username: Annotated[str, constr(min_length=4, max_length=16)]
+    username: Annotated[str, constr(min_length=4)]
     password: Annotated[str, constr(min_length=4)]
     email: EmailStr
-    phone: Annotated[str, constr(min_length=10, max_length=10)]
+    phone: Annotated[str, constr(min_length=10, max_length=10)] | Annotated[str, constr(min_length=0, max_length=0)]
     DoB: date
-    pfp_ref: UUID | None = None
+    pfp_ref: UUID | Annotated[str, constr(min_length=0, max_length=0)]
+
+    @model_validator(mode="after")
+    def validate_usercreatereq(self):
+        if self.phone == "":
+            self.phone = None
+        if self.pfp_ref == "":
+            self.pfp_ref = None
+        return self
 
 class GetUserRequest(BaseModel):
     uname: str | None = None

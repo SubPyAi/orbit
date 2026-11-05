@@ -1,0 +1,42 @@
+.orbit-date-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.orbit-date-label {
+    font-size: 0.875rem;
+    color: var(--orbit-text-secondary);
+}
+
+.orbit-date {
+    width: 100%;
+    padding: 0.85rem 1rem;
+
+    background: var(--orbit-bg-secondary);
+    color: var(--orbit-text-primary);
+
+    border: 1px solid var(--orbit-border);
+    border-radius: 0.75rem;
+
+    font-family: inherit;
+    font-size: 0.95rem;
+
+    color-scheme: dark;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.orbit-date:focus {
+    border-color: var(--orbit-accent);
+}
+
+.orbit-date--error {
+    border-color: #ef6464;
+}
+
+/* Calendar icon */
+.orbit-date::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+}

@@ -1,18 +1,20 @@
+
 import React from 'react';
 import './TextField.css';
 
 interface InputProps
     extends React.InputHTMLAttributes<HTMLInputElement> {
-
     label?: string;
     error?: string;
     hint?: string;
+    hasError?: boolean;
 }
 
-function TextField({
+function Input({
     label,
     error,
     hint,
+    hasError = false,
     id,
     className = '',
     ...props
@@ -20,6 +22,8 @@ function TextField({
 
     const inputId = id ?? React.useId();
     const messageId = `${inputId}-message`;
+
+    const isError = hasError || Boolean(error);
 
     return (
         <div className="orbit-input-wrapper">
@@ -37,10 +41,10 @@ function TextField({
                 id={inputId}
                 className={[
                     'orbit-input',
-                    error ? 'orbit-input--error' : '',
+                    isError ? 'orbit-input--error' : '',
                     className
                 ].filter(Boolean).join(' ')}
-                aria-invalid={error ? true : undefined}
+                aria-invalid={isError ? true : undefined}
                 aria-describedby={
                     error || hint ? messageId : undefined
                 }
@@ -64,4 +68,4 @@ function TextField({
     );
 }
 
-export default TextField;
+export default Input;
