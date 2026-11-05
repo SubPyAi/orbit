@@ -91,7 +91,7 @@ class UserControl:
         params = (username,)
         result = sql_handler.put_query(query, params)
         if result == []:
-            return error_codes.USER_NOT_FOUND
+            return error_codes.USER_NOT_VALIDATED
         else:
             print(result)
             hash = result[0][2]
